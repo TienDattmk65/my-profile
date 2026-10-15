@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Briefcase, GraduationCap, CheckCircle } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { TimelineItem } from '../types/profile';
 
 interface TimelineProps {

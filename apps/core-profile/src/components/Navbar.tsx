@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, FileCode2, Menu, X, ArrowUpRight } from 'lucide-react';
+import { FileCode2, Menu, X, ArrowUpRight } from 'lucide-react';
 import { PersonalInfo } from '../types/profile';
 
 interface NavbarProps {

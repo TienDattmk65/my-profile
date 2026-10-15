@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Github, Server, Bot, BarChart3, Layers, Sparkles, Terminal } from 'lucide-react';
+import { ExternalLink, Github, Server, Bot, BarChart3, Layers } from 'lucide-react';
 import { ShowcaseProject } from '../types/profile';
 
 interface ShowcaseProps {

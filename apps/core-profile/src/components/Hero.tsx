@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowDown, Layers, Terminal, Sparkles, FileCode2 } from 'lucide-react';
+import { Layers, Terminal, Sparkles, FileCode2 } from 'lucide-react';
 import { PersonalInfo } from '../types/profile';
 
 interface HeroProps {
