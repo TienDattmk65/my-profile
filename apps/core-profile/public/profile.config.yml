@@ -1,0 +1,166 @@
+# ==============================================================================
+# HỒ SƠ CÁ NHÂN & CẤU HÌNH HỆ SINH THÁI (TIẾN ĐẠT PROFILE CONFIGURATION)
+# ==============================================================================
+# Bạn có thể chỉnh sửa trực tiếp nội dung file này để cập nhật toàn bộ trang web
+# mà KHÔNG CẦN phải sửa code hay build lại ứng dụng.
+# ==============================================================================
+
+# 1. THÔNG TIN CÁ NHÂN (PERSONAL INFO)
+personal:
+  name: "Tiến Đạt"
+  headline: "Cloud & DevOps Engineer • AI & Data Driven"
+  subheadline: "Xây dựng hệ thống phân tán chịu tải cao, tự động hóa hạ tầng đám mây và tích hợp các giải pháp trí tuệ nhân tạo."
+  location: "Hà Nội, Việt Nam"
+  statusBadge:
+    text: "Sẵn sàng đón nhận cơ hội mới"
+    type: "available" # available | busy | open_to_work
+  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
+  resumeUrl: "#contact"
+  bio: >
+    Tôi là một kỹ sư phần mềm định hướng Cloud & DevOps với niềm đam mê sâu sắc
+    về kiến trúc Microservices, Kubernetes, hạ tầng CI/CD và ứng dụng AI/Data.
+    Trang web này đóng vai trò như một Control Center trung tâm, trực quan hóa và
+    điều hướng tới các dịch vụ con đang chạy thực tế trong cụm hệ thống của tôi.
+
+# 2. CHỈ SỐ HOẠT ĐỘNG (QUICK STATS)
+stats:
+  - label: "Microservices Đang Chạy"
+    value: "3+"
+    icon: "Server"
+  - label: "Tự Động Hóa CI/CD"
+    value: "100%"
+    icon: "GitBranch"
+  - label: "Container Uptime"
+    value: "99.9%"
+    icon: "Activity"
+  - label: "Mã Nguồn Mở"
+    value: "10+"
+    icon: "Github"
+
+# 3. KỸ NĂNG CHUYÊN MÔN (SKILL MATRIX)
+skills:
+  - category: "Cloud & DevOps"
+    icon: "Cloud"
+    description: "Tự động hóa triển khai, giám sát và vận hành cụm container"
+    items:
+      - name: "Docker & Containerization"
+        level: 90
+        tags: ["Multi-stage", "Nginx", "Docker Compose", "Optimization"]
+      - name: "Kubernetes (K8s)"
+        level: 80
+        tags: ["Deployments", "Services", "Ingress", "Helm", "Auto-healing"]
+      - name: "CI/CD Pipelines"
+        level: 85
+        tags: ["GitHub Actions", "Matrix Builds", "Webhook CD", "Render"]
+      - name: "Cloud Platforms & Linux"
+        level: 82
+        tags: ["Linux Administration", "Render", "AWS", "Nginx"]
+
+  - category: "AI & Machine Learning"
+    icon: "Cpu"
+    description: "Đóng gói mô hình học máy và xây dựng API suy luận tốc độ cao"
+    items:
+      - name: "Python AI/ML Ecosystem"
+        level: 80
+        tags: ["PyTorch", "Scikit-Learn", "FastAPI", "Pandas", "NumPy"]
+      - name: "LLMs & Prompt Engineering"
+        level: 85
+        tags: ["LangChain", "RAG", "Chatbot Assistants", "HuggingFace"]
+      - name: "Model Serving & Optimization"
+        level: 75
+        tags: ["FastAPI Async", "ONNX", "Docker GPU", "REST API"]
+
+  - category: "Software Engineering & Data"
+    icon: "Code"
+    description: "Phát triển giao diện web hiện đại, API backend và pipeline xử lý dữ liệu"
+    items:
+      - name: "Modern Web (React / TypeScript)"
+        level: 88
+        tags: ["React", "TypeScript", "Vite", "Modern CSS", "State Management"]
+      - name: "Backend & Microservices"
+        level: 82
+        tags: ["RESTful API", "Reverse Proxy", "Node.js", "Python"]
+      - name: "Data Analytics & Pipelines"
+        level: 78
+        tags: ["Data Cleansing", "ETL", "Interactive Dashboards", "SQL"]
+
+# 4. DANH SÁCH SUBPROJECT SHOWCASE (HỆ SINH THÁI MICROSERVICES)
+showcase:
+  - id: "devops-k8s"
+    title: "DevOps & K8s Playground"
+    category: "Cloud & DevOps"
+    status: "coming_soon" # live | demo | coming_soon
+    statusLabel: "🔵 Sắp ra mắt (Giai đoạn 2)"
+    description: >
+      Microservice mô phỏng trực quan trạng thái cụm Kubernetes: pod health-check,
+      cơ chế tự phục hồi (auto-healing), metrics tải và biểu đồ tài nguyên.
+    architecture: "Go / Node.js + Nginx Ingress + K8s API"
+    techStack: ["Kubernetes", "Docker", "Prometheus", "Tailwind/Vite"]
+    liveUrl: "#"
+    githubUrl: "https://github.com/TienDattmk65/my-profile"
+    icon: "Server"
+
+  - id: "ai-assistant"
+    title: "AI Resume & Portfolio Assistant"
+    category: "AI & Machine Learning"
+    status: "coming_soon"
+    statusLabel: "🔵 Sắp ra mắt (Giai đoạn 3)"
+    description: >
+      Trợ lý ảo thông minh tương tác bằng mô hình ngôn ngữ lớn (LLM),
+      cho phép nhà tuyển dụng trò chuyện trực tiếp để tra cứu kinh nghiệm và dự án của tôi.
+    architecture: "Python FastAPI + LangChain RAG + React Widget"
+    techStack: ["Python", "FastAPI", "LangChain", "OpenAI / Gemini"]
+    liveUrl: "#"
+    githubUrl: "https://github.com/TienDattmk65/my-profile"
+    icon: "Bot"
+
+  - id: "data-analytics"
+    title: "Data Analytics Platform"
+    category: "Data Analytics"
+    status: "coming_soon"
+    statusLabel: "🔵 Sắp ra mắt (Giai đoạn 4)"
+    description: >
+      Bảng điều khiển trực quan hóa dữ liệu và pipeline ETL tự động phân tích
+      chỉ số hoạt động mã nguồn, thống kê hệ thống và xu hướng công nghệ.
+    architecture: "Python Pipeline + Streamlit / Dash + DuckDB"
+    techStack: ["Python", "Pandas", "Plotly", "ETL Pipeline"]
+    liveUrl: "#"
+    githubUrl: "https://github.com/TienDattmk65/my-profile"
+    icon: "BarChart3"
+
+# 5. DÒNG THỜI GIAN KINH NGHIỆM & HỌC VẤN (TIMELINE)
+timeline:
+  - year: "2024 - Hiện Tại"
+    title: "Nghiên Cứu & Phát Triển Cloud Native & Microservices"
+    organization: "Personal Lab & Open Source"
+    badge: "Active Focus"
+    description: >
+      Tập trung phát triển các giải pháp container hóa, triển khai cụm Kubernetes,
+      xây dựng pipeline CI/CD tự động và tích hợp các ứng dụng AI vào hệ thống microservices.
+    skills: ["Docker", "Kubernetes", "GitHub Actions", "React", "Render"]
+
+  - year: "2023 - 2024"
+    title: "Kỹ Sư Phần Mềm & Xử Lý Dữ Liệu"
+    organization: "Dự Án Kỹ Thuật Số"
+    badge: "Engineering"
+    description: >
+      Tham gia phát triển các ứng dụng web quy mô, thiết kế API backend tốc độ cao,
+      tối ưu hóa cơ sở dữ liệu và xây dựng các luồng dữ liệu tự động.
+    skills: ["TypeScript", "Python", "REST API", "PostgreSQL"]
+
+  - year: "2020 - 2024"
+    title: "Cử Nhân Kỹ Thuật / Công Nghệ Thông Tin"
+    organization: "Đại Học Kỹ Thuật"
+    badge: "Học Vấn"
+    description: >
+      Đào tạo nền tảng vững chắc về khoa học máy tính, cấu trúc dữ liệu và giải thuật,
+      mạng máy tính, hệ điều hành và kỹ thuật phần mềm.
+    skills: ["Data Structures", "Algorithms", "Computer Networking", "OS"]
+
+# 6. THÔNG TIN LIÊN HỆ & MẠNG XÃ HỘI (CONTACTS)
+contacts:
+  email: "tiendat.devops@example.com"
+  github: "https://github.com/TienDattmk65"
+  linkedin: "https://linkedin.com/in/tiendat-dev"
+  telegram: "https://t.me/tiendat_dev"
+  location: "Hà Nội, Việt Nam"
