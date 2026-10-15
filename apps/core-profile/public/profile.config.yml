@@ -5,22 +5,54 @@
 # mà KHÔNG CẦN phải sửa code hay build lại ứng dụng.
 # ==============================================================================
 
+# 0. TRỤC TIMELINE VƯƠN LÊN TOÀN TRANG (ASCENT)
+# Trang mở ở ĐÁY (2002 - mặt đất), người xem cuộn LÊN để leo tới đỉnh (hiện tại).
+# Mỗi section là một trạm trên trục, liệt kê theo thứ tự từ ĐỈNH xuống ĐÁY.
+ascent:
+  stations:
+    summit:
+      icon: "🏔️"
+      label: "Đỉnh Cao • Hiện Tại"
+      caption: "Bạn đã leo tới đỉnh hành trình — đây là tôi của hôm nay"
+    contact:
+      icon: "📡"
+      label: "Trạm Kết Nối"
+      caption: "Chặng tiếp theo của hành trình: cùng nhau xây dựng"
+    stats:
+      icon: "📊"
+      label: "Trạm Chỉ Số Vận Hành"
+    showcase:
+      icon: "🍑"
+      label: "Quả Ngọt Microservices"
+      caption: "Những quả đào đã chín trên cành"
+    skills:
+      icon: "🧰"
+      label: "Kỹ Năng Tích Lũy Trên Đường Leo"
+    journey:
+      icon: "🌳"
+      label: "Hành Trình Cây Đào • 2002 → Hiện Tại"
+    ground:
+      icon: "🌰"
+      label: "Mặt Đất • Điểm Xuất Phát 2002"
+      caption: "Mọi thứ bắt đầu từ đây — cuộn LÊN để vươn cao"
+
 # 1. THÔNG TIN CÁ NHÂN (PERSONAL INFO)
 personal:
-  name: "Tiến Đạt"
-  headline: "Cloud & DevOps Engineer • AI & Data Driven"
-  subheadline: "Xây dựng hệ thống phân tán chịu tải cao, tự động hóa hạ tầng đám mây và tích hợp các giải pháp trí tuệ nhân tạo."
+  name: "name"
+  headline: "headline"
+  subheadline: "subheadline"
   location: "Hà Nội, Việt Nam"
   statusBadge:
-    text: "Sẵn sàng đón nhận cơ hội mới"
+    text: "statusBadge"
     type: "available" # available | busy | open_to_work
   avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
   resumeUrl: "#contact"
   bio: >
-    Tôi là một kỹ sư phần mềm định hướng Cloud & DevOps với niềm đam mê sâu sắc
-    về kiến trúc Microservices, Kubernetes, hạ tầng CI/CD và ứng dụng AI/Data.
-    Trang web này đóng vai trò như một Control Center trung tâm, trực quan hóa và
-    điều hướng tới các dịch vụ con đang chạy thực tế trong cụm hệ thống của tôi.
+    Tôi là Đào Tiến Đạt, một kỹ sư phần mềm định hướng Cloud & DevOps mang họ Đào
+    và bản mệnh Mộc. Hành trình của tôi được khởi nguồn từ một hạt đào sự sống năm 2002,
+    lớn dần qua từng năm tháng học vấn, nở hoa cùng công nghệ và đơm hoa kết trái
+    thành một hệ sinh thái các Microservices độc lập.
+
 
 # 2. CHỈ SỐ HOẠT ĐỘNG (QUICK STATS)
 stats:
@@ -84,7 +116,7 @@ skills:
         level: 78
         tags: ["Data Cleansing", "ETL", "Interactive Dashboards", "SQL"]
 
-# 4. DANH SÁCH SUBPROJECT SHOWCASE (HỆ SINH THÁI MICROSERVICES)
+# 4. DANH SÁCH SUBPROJECT SHOWCASE (HỆ SINH THÁI MICROSERVICES & QUẢ NGỌT TRÊN CÂY)
 showcase:
   - id: "devops-k8s"
     title: "DevOps & K8s Playground"
@@ -99,6 +131,8 @@ showcase:
     liveUrl: "#"
     githubUrl: "https://github.com/TienDattmk65/my-profile"
     icon: "Server"
+    fruitColor: "var(--neon-emerald)"
+    fruitPosition: { x: 28, y: 32 }
 
   - id: "ai-assistant"
     title: "AI Resume & Portfolio Assistant"
@@ -113,6 +147,8 @@ showcase:
     liveUrl: "#"
     githubUrl: "https://github.com/TienDattmk65/my-profile"
     icon: "Bot"
+    fruitColor: "var(--neon-cyan)"
+    fruitPosition: { x: 50, y: 22 }
 
   - id: "data-analytics"
     title: "Data Analytics Platform"
@@ -127,35 +163,74 @@ showcase:
     liveUrl: "#"
     githubUrl: "https://github.com/TienDattmk65/my-profile"
     icon: "BarChart3"
+    fruitColor: "var(--neon-amber)"
+    fruitPosition: { x: 72, y: 34 }
 
-# 5. DÒNG THỜI GIAN KINH NGHIỆM & HỌC VẤN (TIMELINE)
+# 5. DÒNG THỜI GIAN VƯƠN LÊN: HÀNH TRÌNH CÂY ĐÀO NGHỆ THUẬT CẮT GIẤY (ASCENDING TIMELINE)
 timeline:
-  - year: "2024 - Hiện Tại"
-    title: "Nghiên Cứu & Phát Triển Cloud Native & Microservices"
-    organization: "Personal Lab & Open Source"
-    badge: "Active Focus"
+  - year: "2002"
+    title: "Chào Thế Giới"
+    organization: "Thái Bình, Việt Nam"
+    badge: "🍑 Hạt Đào"
+    treeStage: "seed"
+    altitude: "0m"
+    level: 1
     description: >
-      Tập trung phát triển các giải pháp container hóa, triển khai cụm Kubernetes,
-      xây dựng pipeline CI/CD tự động và tích hợp các ứng dụng AI vào hệ thống microservices.
-    skills: ["Docker", "Kubernetes", "GitHub Actions", "React", "Render"]
+      Sinh ra tại Hà Nội, mang họ Đào và bản mệnh Mộc. Hành trình bắt đầu từ một hạt đào
+      cắt giấy nhiều lớp với những đường vân rãnh đặc trưng, ấp ủ tiềm năng và khát vọng vươn lên.
+    skills: ["Tò Mò", "Khám Phá", "Tư Duy Sáng Tạo"]
 
-  - year: "2023 - 2024"
-    title: "Kỹ Sư Phần Mềm & Xử Lý Dữ Liệu"
-    organization: "Dự Án Kỹ Thuật Số"
-    badge: "Engineering"
+  - year: "2018"
+    title: "Mầm Đào Đâm Chồi & Dòng Code Đầu Đời"
+    organization: "Tự Học & Khám Phá Kỹ Thuật"
+    badge: "🌱 Mầm Cây Đào"
+    treeStage: "sprout"
+    altitude: "1,500m"
+    level: 2
     description: >
-      Tham gia phát triển các ứng dụng web quy mô, thiết kế API backend tốc độ cao,
-      tối ưu hóa cơ sở dữ liệu và xây dựng các luồng dữ liệu tự động.
-    skills: ["TypeScript", "Python", "REST API", "PostgreSQL"]
+      Hạt đào bung nở, mầm cây đào non nảy chồi vươn lên hai nhánh lá xanh mướt cắt giấy.
+      Chạm tay vào chiếc máy tính và viết những dòng code thuật toán sơ khai đầu đời.
+    skills: ["C/C++", "Thuật Toán Cơ Bản", "Logic Tư Duy"]
 
   - year: "2020 - 2024"
-    title: "Cử Nhân Kỹ Thuật / Công Nghệ Thông Tin"
+    title: "Cây Đào Trẻ & Nền Móng Kỹ Thuật Đại Học"
     organization: "Đại Học Kỹ Thuật"
-    badge: "Học Vấn"
+    badge: "🌿 Cây Đào Vững Chãi"
+    treeStage: "sapling"
+    altitude: "4,000m"
+    level: 3
     description: >
-      Đào tạo nền tảng vững chắc về khoa học máy tính, cấu trúc dữ liệu và giải thuật,
-      mạng máy tính, hệ điều hành và kỹ thuật phần mềm.
-    skills: ["Data Structures", "Algorithms", "Computer Networking", "OS"]
+      Cây đào lớn dần, thân gỗ nâu kraft đâm cành tỏa các nhánh lá xanh tươi: rèn luyện nền tảng
+      khoa học máy tính, cấu trúc dữ liệu, mạng máy tính, hệ điều hành và phát triển web hiện đại.
+    skills: ["DSA", "Computer Networks", "OS", "TypeScript", "React", "Node.js", "SQL"]
+
+  - year: "2023 - 2024"
+    title: "Cây Đào Nở Rộ Hoa Đào Hồng Phấn & Bứt Phá Cloud"
+    organization: "Dự Án Kỹ Thuật Số & Cloud Lab"
+    badge: "🌸 Cây Đào Nở Rộ Hoa"
+    treeStage: "blooming"
+    altitude: "7,500m"
+    level: 4
+    description: >
+      Cây đào đơm hoa rực rỡ với những cánh hoa đào hồng phấn xếp tầng nghệ thuật cắt giấy,
+      biểu trưng cho mùa xuân bứt phá làm chủ công nghệ Container (Docker), Kubernetes và CI/CD.
+    skills: ["Docker", "Kubernetes", "CI/CD Actions", "FastAPI", "Nginx", "Render"]
+
+  - year: "2024 - Hiện Tại"
+    title: "Cây Đào Đại Thụ Trĩu Quả Đào Microservices"
+    organization: "Personal Ecosystem & The Hub"
+    badge: "🍑 Cây Đào Kết Trái Microservices"
+    treeStage: "mature"
+    altitude: "10,000m"
+    level: 5
+    description: >
+      Cây đào họ Đào đã đạt đến độ chín muồi, kết thành những Quả Đào cam hồng chín mọng.
+      Mỗi quả đào trên cành là một Microservice độc lập sẵn sàng live demo
+      (DevOps K8s Playground, AI Resume Assistant, Data Analytics Platform).
+    skills: ["Microservices", "Cloud Native", "Kubernetes", "LLM Integration", "Data ETL"]
+    linkedFruits: ["devops-k8s", "ai-assistant", "data-analytics"]
+
+
 
 # 6. THÔNG TIN LIÊN HỆ & MẠNG XÃ HỘI (CONTACTS)
 contacts:

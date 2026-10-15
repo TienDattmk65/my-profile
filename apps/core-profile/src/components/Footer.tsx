@@ -17,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ personal }) => {
         borderTop: '1px solid var(--border-light)',
         background: 'rgba(10, 14, 23, 0.95)',
         padding: '3rem 0 2rem 0',
-        marginTop: '3rem',
+        marginTop: '1.5rem',
       }}
     >
       <div className="container">
@@ -78,10 +78,10 @@ export const Footer: React.FC<FooterProps> = ({ personal }) => {
               onClick={scrollToTop}
               className="btn btn-secondary"
               style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
-              title="Cuộn lên đầu trang"
+              title="Leo thẳng lên đỉnh (Hiện tại)"
             >
               <ArrowUp size={15} />
-              <span>Lên Đầu Trang</span>
+              <span>Lên Đỉnh</span>
             </button>
           </div>
         </div>

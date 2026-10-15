@@ -21,11 +21,12 @@ export const Navbar: React.FC<NavbarProps> = ({ personal, onOpenYamlModal }) => 
 
   const navLinks = [
     { label: 'Giới Thiệu', href: '#about' },
-    { label: 'Kỹ Năng', href: '#skills' },
+    { label: '🍑 Cây Đào Timeline', href: '#timeline' },
     { label: 'Microservices Demos', href: '#showcase' },
-    { label: 'Lộ Trình', href: '#timeline' },
+    { label: 'Kỹ Năng', href: '#skills' },
     { label: 'Liên Hệ', href: '#contact' },
   ];
+
 
   return (
     <nav

@@ -12,7 +12,7 @@ export const Hero: React.FC<HeroProps> = ({ personal, onOpenYamlModal }) => {
     <section
       id="about"
       style={{
-        paddingTop: '8rem',
+        paddingTop: '2rem',
         paddingBottom: '4rem',
         position: 'relative',
         overflow: 'hidden',
@@ -79,21 +79,22 @@ export const Hero: React.FC<HeroProps> = ({ personal, onOpenYamlModal }) => {
 
             {/* Call To Actions */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-              <a href="#showcase" className="btn btn-primary" id="btn-explore-demos">
-                <Layers size={18} />
-                <span>Khám Phá Demos</span>
+              <a href="#timeline" className="btn btn-primary" id="btn-explore-timeline">
+                <span style={{ fontSize: '1.1rem' }}>🍑</span>
+                <span>Hành Trình Cây Đào</span>
               </a>
 
-              <button onClick={onOpenYamlModal} className="btn btn-secondary" id="btn-hero-yaml">
+              <a href="#showcase" className="btn btn-secondary" id="btn-explore-demos">
+                <Layers size={18} />
+                <span>Microservices Demos</span>
+              </a>
+
+              <button onClick={onOpenYamlModal} className="btn btn-outline-glow" id="btn-hero-yaml">
                 <FileCode2 size={18} />
                 <span>Xem Cấu Hình YAML</span>
               </button>
-
-              <a href="#contact" className="btn btn-outline-glow">
-                <Terminal size={18} />
-                <span>Thông Tin Liên Hệ</span>
-              </a>
             </div>
+
 
             {/* Data-Driven Notice */}
             <div

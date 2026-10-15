@@ -45,6 +45,8 @@ export interface ShowcaseProject {
   liveUrl: string;
   githubUrl: string;
   icon: string;
+  fruitColor?: string;
+  fruitPosition?: { x: number; y: number };
 }
 
 export interface TimelineItem {
@@ -54,7 +56,12 @@ export interface TimelineItem {
   badge: string;
   description: string;
   skills: string[];
+  treeStage?: 'seed' | 'sprout' | 'sapling' | 'blooming' | 'mature';
+  altitude?: string;
+  level?: number;
+  linkedFruits?: string[];
 }
+
 
 export interface ContactsInfo {
   email: string;
@@ -64,7 +71,27 @@ export interface ContactsInfo {
   location: string;
 }
 
+export type AscentStationKey =
+  | 'summit'
+  | 'contact'
+  | 'stats'
+  | 'showcase'
+  | 'skills'
+  | 'journey'
+  | 'ground';
+
+export interface AscentStationInfo {
+  icon: string;
+  label: string;
+  caption?: string;
+}
+
+export interface AscentConfig {
+  stations?: Partial<Record<AscentStationKey, AscentStationInfo>>;
+}
+
 export interface ProfileConfig {
+  ascent?: AscentConfig;
   personal: PersonalInfo;
   stats: QuickStat[];
   skills: SkillCategory[];
