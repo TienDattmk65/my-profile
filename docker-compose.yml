@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  core-profile:
+    build:
+      context: ./apps/core-profile
+      dockerfile: Dockerfile
+    container_name: profile-core-web
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - profile-network
+
+  # Các Subproject Services sẽ được bổ sung tại đây khi triển khai:
+  # devops-k8s-service:
+  #   build: ./services/devops-k8s-service
+  #   networks: [profile-network]
+  #
+  # ml-assistant-service:
+  #   build: ./services/ml-assistant-service
+  #   networks: [profile-network]
+  #
+  # data-analytics-service:
+  #   build: ./services/data-analytics-service
+  #   networks: [profile-network]
+
+networks:
+  profile-network:
+    driver: bridge
