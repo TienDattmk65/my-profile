@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp, Heart, Github, Cloud } from 'lucide-react';
+import { ArrowUp, Cloud } from 'lucide-react';
 import { PersonalInfo } from '../types/profile';
 
 interface FooterProps {

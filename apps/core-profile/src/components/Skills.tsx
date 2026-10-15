@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cloud, Cpu, Code, CheckCircle2 } from 'lucide-react';
+import { Cloud, Cpu, Code } from 'lucide-react';
 import { SkillCategory } from '../types/profile';
 
 interface SkillsProps {
