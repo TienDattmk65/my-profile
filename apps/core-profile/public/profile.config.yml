@@ -160,7 +160,7 @@ timeline:
 # 6. THÔNG TIN LIÊN HỆ & MẠNG XÃ HỘI (CONTACTS)
 contacts:
   email: "tiendat.devops@example.com"
-  github: "https://github.com/TienDattmk65"
+  # github: "https://github.com/TienDattmk65"
   linkedin: "https://linkedin.com/in/tiendat-dev"
   telegram: "https://t.me/tiendat_dev"
   location: "Hà Nội, Việt Nam"
