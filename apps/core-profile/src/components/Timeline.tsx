@@ -27,7 +27,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   // Mỗi mốc là một trang cao bằng màn hình, tự trượt khớp trang khi người xem dừng cuộn
-  useMilestonePageSnap(cardRefs);
+  useMilestonePageSnap();
 
   const activeItem = timeline[activeIdx] || timeline[0];
   const currentStage = activeItem?.treeStage || 'mature';
@@ -206,6 +206,7 @@ export const Timeline: React.FC<TimelineProps> = ({
                     cardRefs.current[idx] = el;
                   }}
                   data-idx={idx}
+                  data-snap-page
                   data-ascent-label={`${item.year} • ${item.badge}`}
                   data-ascent-year={parseStartYear(item.year)}
                   className={`milestone-page${isSelected ? ' is-active' : ''}`}

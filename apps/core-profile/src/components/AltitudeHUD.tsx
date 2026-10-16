@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUp, ArrowDown, CalendarClock } from 'lucide-react';
+import { SNAP_PAGE_SELECTOR, animateScrollTo, pageScrollTop } from '../hooks/useMilestonePageSnap';
 
 interface AltitudeHUDProps {
   startYear: number;
@@ -10,6 +11,8 @@ interface AltitudeHUDProps {
 export const AltitudeHUD: React.FC<AltitudeHUDProps> = ({ startYear, currentYear }) => {
   const [progress, setProgress] = useState(0);
   const [currentLabel, setCurrentLabel] = useState('');
+  // Ẩn bảng khi đang ở trạm có đánh dấu data-hide-hud (vd: trang khởi đầu)
+  const [isHidden, setIsHidden] = useState(false);
   const [targetYear, setTargetYear] = useState(startYear);
   const [displayYear, setDisplayYear] = useState(startYear);
   const displayYearRef = useRef(startYear);
@@ -43,6 +46,7 @@ export const AltitudeHUD: React.FC<AltitudeHUDProps> = ({ startYear, currentYear
       });
       const active = current ?? lowest;
       setCurrentLabel(active?.dataset.ascentLabel || '');
+      setIsHidden(Boolean(active?.hasAttribute('data-hide-hud')));
       const year = Number(active?.dataset.ascentYear);
       if (year) setTargetYear(year);
     };
@@ -87,19 +91,33 @@ export const AltitudeHUD: React.FC<AltitudeHUDProps> = ({ startYear, currentYear
   const age = Math.max(0, displayYear - startYear);
 
   const scrollToSummit = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Nút "Bắt đầu": lên đúng 1 trang mốc ngay phía trên (từ trang khởi đầu -> mốc đầu tiên)
+  const scrollToNextPageUp = () => {
+    const y = window.scrollY;
+    let target: HTMLElement | undefined;
+    let bestTop = -Infinity;
+    document.querySelectorAll<HTMLElement>(SNAP_PAGE_SELECTOR).forEach((el) => {
+      const top = pageScrollTop(el);
+      if (top < y - 2 && top > bestTop) {
+        bestTop = top;
+        target = el;
+      }
+    });
+    if (target) animateScrollTo(bestTop);
+  };
   const scrollToGround = () =>
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
 
   return (
     <>
       {isAtGround && (
-        <button type="button" className="ascent-hint" onClick={scrollToSummit}>
+        <button type="button" className="ascent-hint" onClick={scrollToNextPageUp}>
+          <span>Bắt đầu</span>
           <ArrowUp size={16} />
-          <span>Cuộn LÊN để vươn tới hiện tại</span>
         </button>
       )}
 
-      <div className="altitude-hud" role="status" aria-live="polite">
+      <div className={`altitude-hud${isHidden ? ' is-hidden' : ''}`} role="status" aria-live="polite" aria-hidden={isHidden}>
         <div className="altitude-hud-meter" aria-hidden="true">
           <div className="altitude-hud-fill" style={{ height: `${progress * 100}%` }} />
         </div>
