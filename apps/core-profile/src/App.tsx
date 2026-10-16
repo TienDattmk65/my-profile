@@ -7,12 +7,15 @@ import { Skills } from './components/Skills';
 import { Showcase } from './components/Showcase';
 import { Timeline } from './components/Timeline';
 import { Contact } from './components/Contact';
-import { Footer } from './components/Footer';
 import { YamlViewerModal } from './components/YamlViewerModal';
 import { AscentStation } from './components/AscentStation';
 import { AltitudeHUD } from './components/AltitudeHUD';
+import { TypewriterGreeting } from './components/TypewriterGreeting';
 import { parseStartYear } from './services/yearUtils';
 import { Loader2 } from 'lucide-react';
+
+// Lời chào dự phòng khi profile.config.yml thiếu mục ascent.greetings
+const DEFAULT_GREETINGS = ["Hello,\nI'm Dao Manh Tien Dat", 'Xin chào,\nTôi là Đào Mạnh Tiến Đạt'];
 
 // Nhãn trạm dự phòng khi profile.config.yml thiếu mục ascent.stations
 const DEFAULT_STATIONS: Record<AscentStationKey, AscentStationInfo> = {
@@ -159,8 +162,11 @@ export const App: React.FC = () => {
           </AscentStation>
         )}
 
-        <AscentStation station={station('ground')} year={startYear}>
-          <Footer personal={profileData.personal} />
+        {/* Trang khởi đầu (Mặt Đất): lời chào gõ kiểu terminal ở chính giữa */}
+        <AscentStation station={station('ground')} year={startYear} isFullPage hideHead hideHud>
+          <div className="container ground-hero">
+            <TypewriterGreeting texts={profileData.ascent?.greetings ?? DEFAULT_GREETINGS} />
+          </div>
         </AscentStation>
       </main>
 

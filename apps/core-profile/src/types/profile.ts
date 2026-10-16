@@ -87,6 +87,8 @@ export interface AscentStationInfo {
 }
 
 export interface AscentConfig {
+  /** Lời chào gõ kiểu terminal ở trang khởi đầu, thay phiên nhau; dùng "\n" để xuống dòng */
+  greetings?: string[];
   stations?: Partial<Record<AscentStationKey, AscentStationInfo>>;
 }
 

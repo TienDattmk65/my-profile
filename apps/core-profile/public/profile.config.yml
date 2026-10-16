@@ -9,6 +9,10 @@
 # Trang mở ở ĐÁY (2002 - mặt đất), người xem cuộn LÊN để leo tới đỉnh (hiện tại).
 # Mỗi section là một trạm trên trục, liệt kê theo thứ tự từ ĐỈNH xuống ĐÁY.
 ascent:
+  # Lời chào ở chính giữa trang khởi đầu, gõ kiểu terminal và thay phiên nhau xuất hiện ("\n" = xuống dòng)
+  greetings:
+    - "Hello,\nI'm Dao Manh Tien Dat"
+    - "Xin chào,\nTôi là Đào Mạnh Tiến Đạt"
   stations:
     summit:
       icon: "🏔️"

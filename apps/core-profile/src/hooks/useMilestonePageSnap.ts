@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 // Thời gian (ms) một lượt chuyển trang mốc
 const PAGE_TRANSITION_MS = 850;
@@ -61,6 +61,9 @@ export function animateScrollTo(top: number, duration = PAGE_TRANSITION_MS): Pro
 /** Vị trí cuộn để trang mốc `el` khớp đúng mép trên màn hình. */
 export const pageScrollTop = (el: HTMLElement) => window.scrollY + el.getBoundingClientRect().top;
 
+// Các phần tử là một "trang" cao bằng màn hình: từng mốc timeline + trang khởi đầu (Mặt Đất)
+export const SNAP_PAGE_SELECTOR = '[data-snap-page]';
+
 /**
  * Mỗi mốc là một trang cao bằng màn hình, chuyển trang kiểu "full page":
  * - Lăn chuột / vuốt / phím mũi tên, PageUp/PageDown, Space khi đang ở vùng timeline sẽ
@@ -69,7 +72,7 @@ export const pageScrollTop = (el: HTMLElement) => window.scrollY + el.getBoundin
  *   để người xem rời khỏi timeline.
  * - Cuộn bằng cách khác (kéo thanh cuộn...) mà dừng giữa 2 mốc thì tự trượt khớp mốc gần nhất.
  */
-export function useMilestonePageSnap(pageRefs: React.MutableRefObject<(HTMLElement | null)[]>) {
+export function useMilestonePageSnap() {
   useEffect(() => {
     let isAnimating = false;
     let lastWheelTime = 0;
@@ -78,7 +81,7 @@ export function useMilestonePageSnap(pageRefs: React.MutableRefObject<(HTMLEleme
     let touchGestureHandled = false;
     let idleTimer: number | undefined;
 
-    const pages = () => pageRefs.current.filter((el): el is HTMLElement => Boolean(el));
+    const pages = () => Array.from(document.querySelectorAll<HTMLElement>(SNAP_PAGE_SELECTOR));
 
     // Màn hình có đang chồng lên ít nhất một trang mốc không
     const isInTimeline = () =>
@@ -259,5 +262,5 @@ export function useMilestonePageSnap(pageRefs: React.MutableRefObject<(HTMLEleme
       window.clearTimeout(idleTimer);
       cancelPageAnimation();
     };
-  }, [pageRefs]);
+  }, []);
 }
