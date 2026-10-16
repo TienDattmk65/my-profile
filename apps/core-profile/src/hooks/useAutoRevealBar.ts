@@ -2,15 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 
 // Khoảng cách (px) tính từ mép trên màn hình mà khi đưa chuột vào sẽ hiện thanh
 const HOVER_ZONE_PX = 72;
-// Thời gian (ms) giữ thanh hiển thị sau lần cuộn lên cuối cùng
+// Thời gian (ms) giữ thanh hiển thị sau lần cuộn cuối cùng
 const IDLE_HIDE_MS = 2200;
 // Bỏ qua dao động cuộn nhỏ (px) để thanh không nhấp nháy
 const SCROLL_JITTER_PX = 4;
 
 /**
  * Thanh tự ẩn/hiện:
- * - Hiện khi người xem cuộn LÊN hoặc đưa chuột lên sát mép trên màn hình.
- * - Ẩn khi cuộn XUỐNG, hoặc sau một lúc không cuộn (trừ khi chuột đang ở trên thanh).
+ * - Hiện khi người xem cuộn (cả LÊN lẫn XUỐNG) hoặc đưa chuột lên sát mép trên màn hình.
+ * - Ẩn mượt sau một lúc không cuộn (trừ khi chuột đang ở trên thanh).
+ * - Bỏ qua các lần cuộn tự động lúc mới vào trang (ghim ở đáy) cho tới khi người xem tương tác.
  */
 export function useAutoRevealBar() {
   const [isVisible, setIsVisible] = useState(false);
@@ -19,6 +20,11 @@ export function useAutoRevealBar() {
 
   useEffect(() => {
     let lastY = window.scrollY;
+    let hasUserInteracted = false;
+    const markInteraction = () => {
+      hasUserInteracted = true;
+    };
+    const interactionEvents = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
 
     const clearHideTimer = () => window.clearTimeout(hideTimerRef.current);
 
@@ -34,14 +40,10 @@ export function useAutoRevealBar() {
       const delta = y - lastY;
       if (Math.abs(delta) < SCROLL_JITTER_PX) return;
       lastY = y;
+      if (!hasUserInteracted) return;
 
-      if (delta < 0) {
-        setIsVisible(true);
-        scheduleHide();
-      } else if (!isHoveringRef.current) {
-        clearHideTimer();
-        setIsVisible(false);
-      }
+      setIsVisible(true);
+      if (!isHoveringRef.current) scheduleHide();
     };
 
     const onMouseMove = (event: MouseEvent) => {
@@ -63,10 +65,12 @@ export function useAutoRevealBar() {
       scheduleHide();
     };
 
+    interactionEvents.forEach((name) => window.addEventListener(name, markInteraction, { passive: true }));
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     document.documentElement.addEventListener('mouseleave', onMouseLeave);
     return () => {
+      interactionEvents.forEach((name) => window.removeEventListener(name, markInteraction));
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('mousemove', onMouseMove);
       document.documentElement.removeEventListener('mouseleave', onMouseLeave);

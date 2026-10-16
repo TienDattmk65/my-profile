@@ -4,6 +4,7 @@ import { TimelineItem, ShowcaseProject } from '../types/profile';
 import { EcoTreeVisualizer } from './EcoTreeVisualizer';
 import { parseStartYear } from '../services/yearUtils';
 import { useAutoRevealBar } from '../hooks/useAutoRevealBar';
+import { animateScrollTo, pageScrollTop, useMilestonePageSnap } from '../hooks/useMilestonePageSnap';
 
 // Chỉ Chromium (Chrome, Edge, Opera...) vẽ được bộ lọc SVG trong backdrop-filter
 const SUPPORTS_GLASS_REFRACTION =
@@ -25,6 +26,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Trang mở ở đáy nên mặc định kích hoạt mốc khởi nguồn (2002 - mốc đầu tiên trong YAML)
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Mỗi mốc là một trang cao bằng màn hình, tự trượt khớp trang khi người xem dừng cuộn
+  useMilestonePageSnap(cardRefs);
 
   const activeItem = timeline[activeIdx] || timeline[0];
   const currentStage = activeItem?.treeStage || 'mature';
@@ -83,7 +86,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   }, [activeIdx]);
 
   const scrollToMilestone = (idx: number) => {
-    cardRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const page = cardRefs.current[idx];
+    if (page) animateScrollTo(pageScrollTop(page));
   };
 
   return (
@@ -204,182 +208,180 @@ export const Timeline: React.FC<TimelineProps> = ({
                   data-idx={idx}
                   data-ascent-label={`${item.year} • ${item.badge}`}
                   data-ascent-year={parseStartYear(item.year)}
-                  style={{
-                    position: 'relative',
-                    marginBottom: '2.5rem',
-                    cursor: 'pointer',
-                  }}
+                  className={`milestone-page${isSelected ? ' is-active' : ''}`}
                   onClick={() => scrollToMilestone(idx)}
                 >
-                  {/* Dot Icon phát sáng trên trục chung */}
-                  <div
-                    className="ascent-milestone-dot"
-                    style={{
-                      position: 'absolute',
-                      top: '0.2rem',
-                      width: isSelected ? '18px' : '14px',
-                      height: isSelected ? '18px' : '14px',
-                      borderRadius: '50%',
-                      background: isSelected ? 'var(--neon-emerald)' : 'var(--bg-primary)',
-                      border: isSelected
-                        ? '3px solid #fff'
-                        : '3px solid var(--neon-emerald)',
-                      boxShadow: isSelected
-                        ? '0 0 16px var(--neon-emerald), 0 0 25px rgba(0, 245, 155, 0.6)'
-                        : '0 0 8px rgba(0, 245, 155, 0.4)',
-                      zIndex: 2,
-                      transition: 'all var(--transition-fast)',
-                    }}
-                  />
-
-                  {/* Card Content */}
-                  <div
-                    className="glass-card"
-                    style={{
-                      padding: '1.8rem',
-                      border: isSelected
-                        ? '1px solid rgba(0, 245, 155, 0.5)'
-                        : '1px solid var(--border-light)',
-                      boxShadow: isSelected
-                        ? '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 245, 155, 0.15)'
-                        : 'var(--glow-card)',
-                      transition: 'all var(--transition-normal)',
-                      background: isSelected
-                        ? 'linear-gradient(135deg, rgba(16, 24, 39, 0.85) 0%, rgba(13, 38, 25, 0.5) 100%)'
-                        : 'var(--bg-card)',
-                    }}
-                  >
+                  <div className="milestone-page-inner">
+                    {/* Dot Icon phát sáng trên trục chung */}
                     <div
+                      className="ascent-milestone-dot"
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: '0.5rem',
-                        marginBottom: '0.6rem',
+                        position: 'absolute',
+                        top: '0.2rem',
+                        width: isSelected ? '18px' : '14px',
+                        height: isSelected ? '18px' : '14px',
+                        borderRadius: '50%',
+                        background: isSelected ? 'var(--neon-emerald)' : 'var(--bg-primary)',
+                        border: isSelected
+                          ? '3px solid #fff'
+                          : '3px solid var(--neon-emerald)',
+                        boxShadow: isSelected
+                          ? '0 0 16px var(--neon-emerald), 0 0 25px rgba(0, 245, 155, 0.6)'
+                          : '0 0 8px rgba(0, 245, 155, 0.4)',
+                        zIndex: 2,
+                        transition: 'all var(--transition-fast)',
+                      }}
+                    />
+
+                    {/* Card Content */}
+                    <div
+                      className="glass-card"
+                      style={{
+                        padding: '1.8rem',
+                        border: isSelected
+                          ? '1px solid rgba(0, 245, 155, 0.5)'
+                          : '1px solid var(--border-light)',
+                        boxShadow: isSelected
+                          ? '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 245, 155, 0.15)'
+                          : 'var(--glow-card)',
+                        transition: 'all var(--transition-normal)',
+                        background: isSelected
+                          ? 'linear-gradient(135deg, rgba(16, 24, 39, 0.85) 0%, rgba(13, 38, 25, 0.5) 100%)'
+                          : 'var(--bg-card)',
                       }}
                     >
                       <div
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.4rem',
-                          color: isSelected ? 'var(--neon-emerald)' : 'var(--neon-cyan)',
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '0.86rem',
-                          fontWeight: 700,
-                        }}
-                      >
-                        <Calendar size={14} />
-                        <span>{item.year}</span>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        {item.altitude && (
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.2rem',
-                              background: 'rgba(0, 242, 254, 0.08)',
-                              padding: '0.2rem 0.5rem',
-                              borderRadius: 'var(--radius-full)',
-                              fontSize: '0.72rem',
-                              color: 'var(--neon-cyan)',
-                              border: '1px solid rgba(0, 242, 254, 0.2)',
-                            }}
-                          >
-                            <Compass size={11} />
-                            {item.altitude}
-                          </span>
-                        )}
-
-                        <span
-                          style={{
-                            background: isSelected
-                              ? 'rgba(0, 245, 155, 0.15)'
-                              : 'rgba(255, 255, 255, 0.06)',
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: 'var(--radius-full)',
-                            fontSize: '0.75rem',
-                            color: isSelected ? 'var(--neon-emerald)' : 'var(--text-muted)',
-                            border: isSelected
-                              ? '1px solid rgba(0, 245, 155, 0.3)'
-                              : '1px solid var(--border-light)',
-                            fontWeight: 600,
-                          }}
-                        >
-                          {item.badge}
-                        </span>
-                      </div>
-                    </div>
-
-                    <h3
-                      style={{
-                        fontSize: '1.25rem',
-                        marginBottom: '0.25rem',
-                        color: isSelected ? '#fff' : 'var(--text-primary)',
-                      }}
-                    >
-                      {item.title}
-                    </h3>
-
-                    <div
-                      style={{
-                        fontSize: '0.9rem',
-                        color: 'var(--neon-mint)',
-                        marginBottom: '0.8rem',
-                        fontWeight: 500,
-                      }}
-                    >
-                      {item.organization}
-                    </div>
-
-                    <p
-                      style={{
-                        color: 'var(--text-secondary)',
-                        fontSize: '0.92rem',
-                        lineHeight: 1.6,
-                        marginBottom: '1rem',
-                      }}
-                    >
-                      {item.description}
-                    </p>
-
-                    {/* Skills tags mở khóa */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      {item.skills.map((skill, sIdx) => (
-                        <span
-                          key={sIdx}
-                          className="tag"
-                          style={{
-                            borderColor: isSelected
-                              ? 'rgba(0, 245, 155, 0.3)'
-                              : 'var(--border-light)',
-                            color: isSelected ? 'var(--neon-emerald)' : 'var(--text-secondary)',
-                          }}
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Chỉ dẫn chọn xem cây */}
-                    {isSelected && (
-                      <div
-                        style={{
-                          marginTop: '0.8rem',
-                          fontSize: '0.75rem',
-                          color: 'var(--neon-emerald)',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.3rem',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: '0.5rem',
+                          marginBottom: '0.6rem',
                         }}
                       >
-                        <Sparkles size={12} />
-                        <span>Đang kích hoạt giai đoạn sinh trưởng này trên Cây Mệnh Mộc</span>
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            color: isSelected ? 'var(--neon-emerald)' : 'var(--neon-cyan)',
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '0.86rem',
+                            fontWeight: 700,
+                          }}
+                        >
+                          <Calendar size={14} />
+                          <span>{item.year}</span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {item.altitude && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                background: 'rgba(0, 242, 254, 0.08)',
+                                padding: '0.2rem 0.5rem',
+                                borderRadius: 'var(--radius-full)',
+                                fontSize: '0.72rem',
+                                color: 'var(--neon-cyan)',
+                                border: '1px solid rgba(0, 242, 254, 0.2)',
+                              }}
+                            >
+                              <Compass size={11} />
+                              {item.altitude}
+                            </span>
+                          )}
+
+                          <span
+                            style={{
+                              background: isSelected
+                                ? 'rgba(0, 245, 155, 0.15)'
+                                : 'rgba(255, 255, 255, 0.06)',
+                              padding: '0.2rem 0.6rem',
+                              borderRadius: 'var(--radius-full)',
+                              fontSize: '0.75rem',
+                              color: isSelected ? 'var(--neon-emerald)' : 'var(--text-muted)',
+                              border: isSelected
+                                ? '1px solid rgba(0, 245, 155, 0.3)'
+                                : '1px solid var(--border-light)',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {item.badge}
+                          </span>
+                        </div>
                       </div>
-                    )}
+
+                      <h3
+                        style={{
+                          fontSize: '1.25rem',
+                          marginBottom: '0.25rem',
+                          color: isSelected ? '#fff' : 'var(--text-primary)',
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+
+                      <div
+                        style={{
+                          fontSize: '0.9rem',
+                          color: 'var(--neon-mint)',
+                          marginBottom: '0.8rem',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {item.organization}
+                      </div>
+
+                      <p
+                        style={{
+                          color: 'var(--text-secondary)',
+                          fontSize: '0.92rem',
+                          lineHeight: 1.6,
+                          marginBottom: '1rem',
+                        }}
+                      >
+                        {item.description}
+                      </p>
+
+                      {/* Skills tags mở khóa */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {item.skills.map((skill, sIdx) => (
+                          <span
+                            key={sIdx}
+                            className="tag"
+                            style={{
+                              borderColor: isSelected
+                                ? 'rgba(0, 245, 155, 0.3)'
+                                : 'var(--border-light)',
+                              color: isSelected ? 'var(--neon-emerald)' : 'var(--text-secondary)',
+                            }}
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Chỉ dẫn chọn xem cây */}
+                      {isSelected && (
+                        <div
+                          style={{
+                            marginTop: '0.8rem',
+                            fontSize: '0.75rem',
+                            color: 'var(--neon-emerald)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                          }}
+                        >
+                          <Sparkles size={12} />
+                          <span>Đang kích hoạt giai đoạn sinh trưởng này trên Cây Mệnh Mộc</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

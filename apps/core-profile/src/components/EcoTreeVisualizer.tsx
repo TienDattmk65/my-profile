@@ -136,7 +136,7 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
               Chỉ có hạt đào trơn, không có thịt quả bao quanh
               ==================================================================== */}
           {currentStage === 'seed' && (
-            <g style={{ transition: 'all 0.5s ease' }}>
+            <g className="tree-stage">
               {/* Bóng hạt đào in xuống nền giấy */}
               <ellipse cx="210" cy="385" rx="70" ry="12" fill="#000" opacity="0.25" />
 
@@ -166,7 +166,7 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
               GIAI ĐOẠN 2: MẦM CÂY ĐÀO ĐÂM CHỒI (2018)
               ==================================================================== */}
           {currentStage === 'sprout' && (
-            <g style={{ transition: 'all 0.5s ease' }}>
+            <g className="tree-stage">
               {/* Thảm cỏ xanh cắt giấy */}
               <path
                 d="M130 420 L150 395 L165 420 L185 390 L200 420 L215 390 L235 420 L255 395 L275 420 Z"
@@ -201,7 +201,7 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
               GIAI ĐOẠN 3: CÂY ĐÀO TRẺ VỮNG CHÃI (2020 - 2024)
               ==================================================================== */}
           {currentStage === 'sapling' && (
-            <g style={{ transition: 'all 0.5s ease' }}>
+            <g className="tree-stage">
               {/* Thảm cỏ xanh cắt giấy ở gốc */}
               <path
                 d="M110 420 L135 390 L160 420 L185 385 L210 420 L235 385 L260 420 L285 390 L310 420 Z"
@@ -242,7 +242,7 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
               Tái hiện sắc nét cành hoa đào cắt giấy từ hình mẫu
               ==================================================================== */}
           {currentStage === 'blooming' && (
-            <g style={{ transition: 'all 0.5s ease' }}>
+            <g className="tree-stage">
               {/* Thảm cỏ xanh cắt giấy ở gốc */}
               <path
                 d="M90 425 L120 390 L150 425 L180 380 L210 425 L240 380 L270 425 L300 390 L330 425 Z"
@@ -296,7 +296,7 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
               GIAI ĐOẠN 5: CÂY ĐÀO ĐẠI THỤ TRĨU QUẢ ĐÀO MICROSERVICES (HIỆN TẠI)
               ==================================================================== */}
           {currentStage === 'mature' && (
-            <g style={{ transition: 'all 0.5s ease' }}>
+            <g className="tree-stage">
               {/* Thảm cỏ xanh cắt giấy ở gốc */}
               <path
                 d="M80 430 L115 390 L150 430 L185 380 L220 430 L255 380 L290 430 L325 390 L360 430 Z"

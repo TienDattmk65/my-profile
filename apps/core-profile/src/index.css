@@ -1102,3 +1102,87 @@ body {
     transition: opacity 0.2s linear;
   }
 }
+
+/* ==============================================================================
+   MỖI MỐC TIMELINE = 1 TRANG CAO BẰNG MÀN HÌNH (tự trượt khớp: useMilestonePageSnap)
+   ============================================================================== */
+.milestone-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: calc(var(--topbar-offset) + 0.5rem) 0 2rem;
+  cursor: pointer;
+}
+
+.milestone-page-inner {
+  position: relative;
+  width: 100%;
+}
+
+/* Cây đào dính giữa màn hình, thẳng hàng với thẻ mốc đang chiếm trang */
+@media (min-width: 993px) {
+  .tree-sticky-card--bare {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 992px) {
+  /* Chừa chỗ phía trên cho dải cây đào dính đầu màn hình */
+  .milestone-page {
+    align-items: flex-start;
+    padding-top: calc(24vh + 3rem);
+  }
+}
+
+/* Chuyển trang mốc: thẻ mốc đang xem hiện rõ, các mốc khác mờ & lùi nhẹ -> cảm giác lướt trang */
+.milestone-page-inner {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s ease;
+}
+
+.milestone-page:not(.is-active) .milestone-page-inner {
+  opacity: 0.25;
+  transform: translateY(28px) scale(0.97);
+  filter: blur(1.5px);
+}
+
+/* Cây đào đổi giai đoạn: lớn lên từ gốc thay vì đổi hình đột ngột */
+.tree-stage {
+  transform-box: view-box;
+  transform-origin: 50% 92%;
+  animation: tree-stage-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tree-stage-grow {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-page-inner,
+  .tree-stage {
+    transition: none;
+    animation: none;
+  }
+
+  .milestone-page:not(.is-active) .milestone-page-inner {
+    transform: none;
+    filter: none;
+  }
+}
