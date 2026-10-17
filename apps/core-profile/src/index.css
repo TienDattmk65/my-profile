@@ -4,6 +4,9 @@
    ============================================================================== */
 
 :root {
+  /* Khoảng chừa phía trên cho thanh mốc nổi khi nó hiện ra */
+  --topbar-offset: 4.5rem;
+
   /* Color Palette */
   --bg-primary: #0a0e17;
   --bg-secondary: #111827;
@@ -323,5 +326,1199 @@ a {
   }
   .section-title {
     font-size: 1.8rem;
+  }
+}
+
+/* ==============================================================================
+   CÂY SINH THÁI MỆNH MỘC (ECO-TREE) & NÚT BẤM QUẢ MICROSERVICES (INTERACTIVE BUTTONS)
+   ============================================================================== */
+
+/* Layout 2 Cột Timeline & Sticky Tree */
+.tree-timeline-split {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .tree-timeline-split {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Sticky Visualizer Box */
+.tree-sticky-card {
+  position: sticky;
+  top: var(--topbar-offset);
+  background: radial-gradient(circle at 50% 50%, rgba(0, 245, 155, 0.05) 0%, rgba(10, 14, 23, 0.85) 80%);
+  border: 1px solid rgba(0, 245, 155, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(0, 245, 155, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 1.8rem;
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.tree-sticky-card:hover {
+  border-color: rgba(0, 245, 155, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 245, 155, 0.15);
+}
+
+/* Fruit Button (Nút bấm Quả Microservices) */
+.fruit-button {
+  cursor: pointer;
+  outline: none;
+  border: 2px solid var(--fruit-color, var(--neon-emerald));
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(10, 14, 23, 0.9) 100%);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 12px var(--fruit-color, var(--neon-emerald)), inset 0 0 8px rgba(255, 255, 255, 0.3);
+  position: relative;
+  animation: fruit-float 4s ease-in-out infinite alternate;
+}
+
+.fruit-button:hover,
+.fruit-button:focus-visible {
+  transform: scale(1.22) translateY(-4px);
+  box-shadow: 
+    0 0 25px var(--fruit-color, var(--neon-emerald)),
+    0 0 50px rgba(0, 245, 155, 0.6),
+    inset 0 0 12px #fff;
+  border-color: #fff;
+  z-index: 20;
+}
+
+.fruit-button:active {
+  transform: scale(1.1);
+}
+
+/* Tooltip trên quả microservice khi hover */
+.fruit-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(10, 18, 28, 0.95);
+  border: 1px solid var(--fruit-color, var(--neon-emerald));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 245, 155, 0.3);
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+  z-index: 30;
+  text-align: center;
+}
+
+.fruit-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--fruit-color, var(--neon-emerald)) transparent transparent transparent;
+}
+
+.fruit-button:hover .fruit-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Chồi lá bấm được (Leaf Button Node) */
+.leaf-button-node {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  fill: var(--neon-jade);
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.4));
+}
+
+.leaf-button-node:hover {
+  fill: #fff;
+  filter: drop-shadow(0 0 14px var(--neon-emerald));
+  transform-origin: center;
+  transform: scale(1.2);
+}
+
+/* Animations */
+@keyframes fruit-float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(2px) rotate(-2deg);
+  }
+}
+
+@keyframes wood-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(0, 245, 155, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(0, 245, 155, 0.7));
+  }
+}
+
+/* ==============================================================================
+   PHONG CÁCH NGHỆ THUẬT CẮT GIẤY: QUẢ ĐÀO & HOA ĐÀO (PAPER-CUT PEACH ART)
+   ============================================================================== */
+
+.paper-cut-canvas {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 117, 143, 0.08) 0%, rgba(13, 17, 24, 0.95) 75%) !important;
+  border: 1px solid rgba(255, 182, 193, 0.25) !important;
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(255, 117, 143, 0.06) !important;
+}
+
+.paper-cut-canvas:hover {
+  border-color: rgba(255, 182, 193, 0.5) !important;
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 117, 143, 0.25) !important;
+}
+
+/* Cây đào không khung: chỉ còn hình cây/hạt đào, không nền, không viền, không bóng */
+.tree-sticky-card--bare,
+.tree-sticky-card--bare:hover {
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Quả Đào Button Cắt Giấy */
+.peach-fruit-btn {
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: fruit-float 4.5s ease-in-out infinite alternate;
+}
+
+.peach-fruit-btn:hover {
+  transform: scale(1.22) translateY(-4px);
+  z-index: 30;
+}
+
+.peach-leaf-decor {
+  position: absolute;
+  top: -8px;
+  right: -2px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.peach-body {
+  width: 54px;
+  height: 52px;
+  border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+  background: radial-gradient(circle at 35% 35%, #fed7aa 0%, #fb7185 50%, #e11d48 100%);
+  border: 2px solid #ffedd5;
+  box-shadow: 
+    2px 4px 10px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(255, 117, 143, 0.5),
+    inset -2px -2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.peach-fruit-btn:hover .peach-body {
+  box-shadow: 
+    0 0 25px #ff758f,
+    0 0 50px rgba(251, 113, 133, 0.75),
+    inset 0 0 12px #fff;
+  border-color: #fff;
+}
+
+/* Tooltip Lồng Đèn Giấy Cho Quả Đào */
+.peach-tooltip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(18, 12, 16, 0.96);
+  border: 1px solid #ff758f;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(255, 117, 143, 0.4);
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+  z-index: 40;
+  text-align: center;
+}
+
+.peach-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #ff758f transparent transparent transparent;
+}
+
+.peach-fruit-btn:hover .peach-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.peach-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  color: #ff758f;
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-bottom: 0.2rem;
+}
+
+.peach-tooltip-cat {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.peach-tooltip-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: #ffa07a;
+  font-weight: 600;
+}
+
+.peach-blossom-group {
+  transition: transform 0.4s ease;
+}
+
+.peach-blossom-group:hover {
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 8px #ff758f);
+}
+
+
+
+/* ==============================================================================
+   TRỤC TIMELINE VƯƠN LÊN TOÀN TRANG (ASCENT TRACK)
+   Trang mở ở đáy (2002 - mặt đất), người xem cuộn LÊN để leo tới đỉnh (hiện tại).
+   Mọi section là một trạm nằm trên cùng một trục neon dọc bên trái.
+   ============================================================================== */
+
+html,
+body {
+  /* Chặn pull-to-refresh trên di động khi vuốt ngược lên tới đỉnh */
+  overscroll-behavior-y: none;
+}
+
+.ascent-main {
+  --ascent-pad: 1.5rem;
+  --ascent-gutter: 2.25rem;
+  --ascent-track-offset: 0.6rem;
+  --ascent-container-left: max(0px, calc((100% - var(--max-width)) / 2));
+  position: relative;
+  padding-top: 2rem;
+}
+
+.ascent-main .container {
+  padding-left: calc(var(--ascent-pad) + var(--ascent-gutter));
+  padding-right: var(--ascent-pad);
+}
+
+/* Trục neon: vàng ở đỉnh (hiện tại) -> xanh lá ở đáy (cội nguồn 2002) */
+.ascent-main::before {
+  content: '';
+  position: absolute;
+  top: 2rem;
+  bottom: 0;
+  left: calc(var(--ascent-container-left) + var(--ascent-pad) + var(--ascent-track-offset));
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(
+    180deg,
+    var(--neon-amber) 0%,
+    var(--neon-violet) 30%,
+    var(--neon-cyan) 60%,
+    var(--neon-emerald) 85%,
+    #6d4c41 100%
+  );
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.35);
+  pointer-events: none;
+}
+
+/* Xung năng lượng chạy dọc trục từ dưới lên */
+.ascent-main::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--ascent-container-left) + var(--ascent-pad) + var(--ascent-track-offset) - 2px);
+  width: 7px;
+  height: 140px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(0, 242, 254, 0.6) 40%, transparent 100%);
+  filter: blur(1px);
+  animation: ascent-pulse 7s linear infinite;
+  pointer-events: none;
+}
+
+/* Vệt sáng xuất phát từ sát đáy trục (không vượt quá đáy trang): nếu thò ra ngoài, trang sẽ dài thêm
+   ~140px trong khoảnh khắc và kéo màn hình đang ở đáy giật lệch đi mỗi chu kỳ */
+@keyframes ascent-pulse {
+  from { top: calc(100% - 140px); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  to { top: 2rem; opacity: 0; }
+}
+
+/* Đầu trạm: chấm trên trục + nhãn trạm */
+.ascent-station-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.8rem;
+  padding-top: 2.5rem;
+}
+
+.ascent-node,
+.ascent-milestone-dot {
+  left: calc(var(--ascent-track-offset) + 1.5px - var(--ascent-gutter));
+  transform: translateX(-50%);
+}
+
+.ascent-node {
+  position: absolute;
+  top: calc(2.5rem + 0.85rem);
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 3px solid var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.55);
+  z-index: 2;
+}
+
+.ascent-station-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-full);
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  color: var(--neon-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ascent-station-caption {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.ascent-station--summit .ascent-node {
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  border-color: var(--neon-amber);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.7);
+}
+
+.ascent-station--summit .ascent-station-pill {
+  color: var(--neon-amber);
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.ascent-station .section-padding {
+  padding: 2.5rem 0 3.5rem;
+}
+
+/* Gợi ý cuộn lên khi đang ở mặt đất */
+.ascent-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  background: rgba(10, 14, 23, 0.9);
+  color: var(--neon-emerald);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  animation: ascent-hint-bounce 1.6s ease-in-out infinite;
+}
+
+@keyframes ascent-hint-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -8px); }
+}
+
+/* Bảng đo độ cao nổi (Altitude HUD) */
+.altitude-hud {
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 900;
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.75rem 0.85rem;
+  max-width: 240px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: rgba(10, 14, 23, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--glow-card);
+}
+
+.altitude-hud-meter {
+  position: relative;
+  width: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.altitude-hud-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(0deg, var(--neon-emerald) 0%, var(--neon-cyan) 50%, var(--neon-amber) 100%);
+  transition: height 0.15s linear;
+}
+
+.altitude-hud-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.altitude-hud-value {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--neon-cyan);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.altitude-hud-label {
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.altitude-hud-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.altitude-hud-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.altitude-hud-actions button:hover {
+  color: var(--neon-cyan);
+  border-color: var(--border-glow);
+}
+
+@media (max-width: 640px) {
+  .ascent-main {
+    --ascent-pad: 1rem;
+    --ascent-gutter: 1.6rem;
+    --ascent-track-offset: 0.2rem;
+  }
+
+  .altitude-hud {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    max-width: 180px;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .altitude-hud-label {
+    display: none;
+  }
+
+  .ascent-hint {
+    bottom: 5.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ascent-main::after,
+  .ascent-hint {
+    animation: none;
+  }
+}
+
+/* Cột cây đào kéo dài bằng cột mốc để card cây dính theo khi cuộn suốt hành trình */
+.tree-sticky-column {
+  align-self: stretch;
+}
+
+@media (max-width: 992px) {
+  /* Một cột trên di động: cây đào nằm trên cùng, dính dưới navbar ở dạng thu gọn */
+  .tree-sticky-column {
+    order: -1;
+    position: sticky;
+    top: 0.5rem;
+    z-index: 5;
+    align-self: start;
+  }
+
+  .tree-sticky-column .tree-sticky-card {
+    position: static;
+    padding: 0;
+  }
+
+  /* Không khung viền: dải nền tối mờ dần ở mép dưới để cây không đè lên chữ các thẻ mốc khi dính đầu màn hình */
+  .tree-sticky-column {
+    margin: 0 calc(-1 * var(--ascent-pad));
+    padding: 0 var(--ascent-pad) 1.5rem;
+    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-primary) 78%, rgba(10, 14, 23, 0) 100%);
+  }
+
+  .tree-sticky-column .tree-sticky-card > div:first-child {
+    aspect-ratio: auto !important;
+    height: 24vh;
+  }
+}
+
+/* ==============================================================================
+   THANH MỐC THỜI GIAN NỔI — LIQUID GLASS KIỂU iOS 26 (thay cho header điều hướng cũ)
+   Kính gần như trong suốt, làm mờ rất nhẹ, viền phản chiếu ánh sáng sắc nét và
+   khúc xạ nội dung phía sau (Chromium). Ẩn mặc định; hiện mượt khi cuộn LÊN hoặc
+   đưa chuột lên sát mép trên màn hình.
+   ============================================================================== */
+.milestone-topbar {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 1000;
+  max-width: calc(100vw - 1.5rem);
+  padding: 0.35rem;
+  border-radius: var(--radius-full);
+  isolation: isolate;
+
+  /* Gần như trong suốt: chỉ phủ một lớp sáng rất mỏng */
+  background: rgba(255, 255, 255, 0.025);
+  -webkit-backdrop-filter: blur(3px) saturate(180%) brightness(1.1);
+  backdrop-filter: blur(3px) saturate(180%) brightness(1.1);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.22),
+    0 1px 3px rgba(0, 0, 0, 0.18),
+    /* Ánh sáng tràn vào mép kính từ trên trái, phản xạ yếu ở dưới phải */
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.25),
+    inset 0 0 6px rgba(255, 255, 255, 0.1),
+    inset 0 -6px 12px -8px rgba(255, 255, 255, 0.18);
+
+  /* Trạng thái ẩn: trượt lên trên, thu nhỏ nhẹ và mờ dần */
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 1.5rem)) scale(0.94);
+  pointer-events: none;
+  transition:
+    transform 0.6s cubic-bezier(0.2, 1.25, 0.35, 1),
+    opacity 0.35s ease;
+  will-change: transform, opacity;
+}
+
+/* Chromium hỗ trợ bộ lọc SVG trong backdrop-filter -> khúc xạ như kính lỏng thật */
+.milestone-topbar.has-refraction {
+  backdrop-filter: url(#liquid-glass-refraction) blur(1.5px) saturate(180%) brightness(1.1);
+}
+
+.milestone-topbar.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  pointer-events: auto;
+}
+
+/* Viền kính: dải sáng gradient mảnh chạy quanh mép (sáng ở góc trên trái & dưới phải) */
+.milestone-topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.12) 30%,
+    rgba(255, 255, 255, 0.04) 55%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
+/* Vệt phản chiếu mờ ở nửa trên mặt kính */
+.milestone-topbar::after {
+  content: '';
+  position: absolute;
+  inset: 1px 1px 50% 1px;
+  z-index: -1;
+  border-radius: var(--radius-full) var(--radius-full) 40% 40% / var(--radius-full) var(--radius-full) 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+.milestone-topbar-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: inherit;
+}
+
+.milestone-topbar-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* Nút trong kính: trong suốt hoàn toàn, chữ có bóng nhẹ để đọc được trên mọi nền */
+.milestone-topbar-track button {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease !important;
+}
+
+.milestone-topbar-track button:not([aria-current]) {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* Hover: giọt kính trắng sáng hiện lên dưới nút */
+.milestone-topbar-track button:not([aria-current]):hover {
+  background: rgba(255, 255, 255, 0.24) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.18),
+    0 0 14px rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Mốc đang xem: giọt kính hồng đậm, nổi bật hẳn so với các mốc khác */
+.milestone-topbar-track button[aria-current] {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 117, 143, 0.85) 0%,
+    rgba(251, 113, 133, 0.7) 55%,
+    rgba(251, 146, 60, 0.75) 100%
+  ) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 2px rgba(120, 20, 40, 0.6);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255, 255, 255, 0.7),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 18px rgba(255, 117, 143, 0.65),
+    0 0 0 1px rgba(255, 117, 143, 0.35) !important;
+}
+
+.milestone-topbar-track button[aria-current]:hover {
+  filter: brightness(1.12);
+}
+
+.milestone-topbar-track button[aria-current] span:last-child:not(:first-child) {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+
+.milestone-topbar-track button span:last-child:not(:first-child) {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.altitude-hud-sub {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-topbar {
+    transition: opacity 0.2s linear;
+  }
+}
+
+/* ==============================================================================
+   MỖI MỐC TIMELINE = 1 TRANG CAO BẰNG MÀN HÌNH (tự trượt khớp: useMilestonePageSnap)
+   ============================================================================== */
+.milestone-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: calc(var(--topbar-offset) + 0.5rem) 0 2rem;
+  cursor: pointer;
+}
+
+.milestone-page-inner {
+  position: relative;
+  width: 100%;
+}
+
+/* Cây đào dính giữa màn hình, thẳng hàng với thẻ mốc đang chiếm trang */
+@media (min-width: 993px) {
+  .tree-sticky-card--bare {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 992px) {
+  /* Chừa chỗ phía trên cho dải cây đào dính đầu màn hình */
+  .milestone-page {
+    align-items: flex-start;
+    padding-top: calc(24vh + 3rem);
+  }
+}
+
+/* Chuyển trang mốc: thẻ mốc đang xem hiện rõ, các mốc khác mờ & lùi nhẹ -> cảm giác lướt trang */
+.milestone-page-inner {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s ease;
+}
+
+.milestone-page:not(.is-active) .milestone-page-inner {
+  opacity: 0.25;
+  transform: translateY(28px) scale(0.97);
+  filter: blur(1.5px);
+}
+
+/* Cây đào đổi giai đoạn: lớn lên từ gốc thay vì đổi hình đột ngột */
+.tree-stage {
+  transform-box: view-box;
+  transform-origin: 50% 92%;
+  animation: tree-stage-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes tree-stage-grow {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-page-inner,
+  .tree-stage {
+    transition: none;
+    animation: none;
+  }
+
+  .milestone-page:not(.is-active) .milestone-page-inner {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Trang khởi đầu (Mặt Đất): chiếm trọn 1 màn hình, không lẫn với mốc 2002 phía trên */
+.ascent-station--page {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ascent-station--page > .container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.ascent-station--page .ascent-station-head {
+  padding-top: 0;
+}
+
+.ascent-station--page .ascent-node {
+  top: 0.85rem;
+}
+
+.ascent-station--page {
+  /* Lớp "mặt đất" nâu mờ dần ở đáy trang khởi đầu */
+  background: linear-gradient(180deg, transparent 0%, transparent 45%, rgba(109, 76, 65, 0.14) 100%);
+}
+
+.ascent-station--page .ascent-station-pill {
+  font-size: 0.95rem;
+  padding: 0.55rem 1.2rem;
+}
+
+.ascent-station--page .ascent-station-caption {
+  flex-basis: 100%;
+  margin-top: 0.35rem;
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+}
+
+.ascent-station--page .ascent-node {
+  top: calc(0.55rem + 0.95rem);
+}
+
+.altitude-hud.is-hidden {
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+  pointer-events: none;
+}
+
+/* ==============================================================================
+   LỜI CHÀO GÕ KIỂU TERMINAL Ở CHÍNH GIỮA TRANG KHỞI ĐẦU (TypewriterGreeting)
+   ============================================================================== */
+.ground-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typewriter {
+  --terminal-green: #39ff14;
+  /* Mọi câu chồng lên cùng một ô lưới: khối chữ luôn rộng/cao bằng câu dài nhất */
+  display: grid;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: clamp(1.2rem, 5vw, 3.6rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--terminal-green);
+  text-shadow:
+    0 0 4px rgba(57, 255, 20, 0.9),
+    0 0 12px rgba(57, 255, 20, 0.6),
+    0 0 28px rgba(57, 255, 20, 0.35);
+  white-space: pre-wrap;
+}
+
+.typewriter-ghost,
+.typewriter-text {
+  grid-area: 1 / 1;
+}
+
+.typewriter-ghost {
+  visibility: hidden;
+}
+
+/* Con trỏ khối kiểu terminal; nhấp nháy khi dừng gõ, đứng yên khi đang gõ/xoá */
+.typewriter-cursor {
+  display: inline-block;
+  margin-left: 0.08em;
+  color: var(--terminal-green);
+}
+
+.typewriter-cursor.is-blinking {
+  animation: typewriter-blink 1s steps(1, end) infinite;
+}
+
+@keyframes typewriter-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-cursor.is-blinking {
+    animation: none;
+  }
+}
+
+/* Cây đào đung đưa nhẹ trong gió, xoay quanh gốc cây */
+.tree-sway {
+  transform-box: view-box;
+  transform-origin: 210px 410px;
+  animation: tree-sway 7s ease-in-out infinite;
+}
+
+@keyframes tree-sway {
+  0%, 100% { transform: rotate(-1.8deg); }
+  50% { transform: rotate(1.8deg); }
+}
+
+/* Mầm non thân mảnh: đung đưa mạnh và nhanh hơn */
+.tree-sway--strong {
+  animation-name: tree-sway-strong;
+  animation-duration: 4.5s;
+}
+
+@keyframes tree-sway-strong {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+/* Cây trĩu quả: thân lắc rất nhẹ để quả đào luôn khớp đầu cành */
+.tree-sway--gentle {
+  animation-name: tree-sway-gentle;
+}
+
+@keyframes tree-sway-gentle {
+  0%, 100% { transform: rotate(-0.5deg); }
+  50% { transform: rotate(0.5deg); }
+}
+
+/* Từng chùm lá/hoa rung nhẹ quanh tâm chùm */
+.canopy-flutter {
+  transform-box: view-box;
+  animation: canopy-flutter 3.6s ease-in-out infinite;
+}
+
+@keyframes canopy-flutter {
+  0%, 100% { transform: rotate(-2.5deg) translate(0, 0); }
+  30% { transform: rotate(1.5deg) translate(1.5px, -1px); }
+  65% { transform: rotate(3deg) translate(-1px, 0.5px); }
+}
+
+/* Hạt đào đung đưa như quả lắc quanh đáy hạt, kết hợp bồng bềnh lên xuống */
+.seed-float {
+  transform-box: view-box;
+  transform-origin: 210px 378px;
+  animation: seed-float 4.8s ease-in-out infinite;
+}
+
+@keyframes seed-float {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  25% { transform: translateY(-7px) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(4deg); }
+  75% { transform: translateY(-7px) rotate(0deg); }
+}
+
+/* Cánh hoa đào rơi lả tả từ tán cây xuống gốc */
+.falling-petal {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: petal-fall 9s linear infinite;
+}
+
+@keyframes petal-fall {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  10% { opacity: 0.9; }
+  50% { transform: translate(-18px, 110px) rotate(160deg); }
+  85% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(10px, 220px) rotate(320deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-sway,
+  .seed-float,
+  .canopy-flutter,
+  .falling-petal {
+    animation: none;
+  }
+}
+
+/* ==============================================================================
+   NÚT BẬT/TẮT HIỆU ỨNG ÂM THANH (góc trên phải, kính lỏng)
+   ============================================================================== */
+.sound-toggle {
+  position: fixed;
+  top: 0.85rem;
+  right: 1rem;
+  z-index: 1001;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(6px) saturate(170%);
+  backdrop-filter: blur(6px) saturate(170%);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.sound-toggle:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  transform: scale(1.06);
+}
+
+.sound-toggle.is-on {
+  color: #39ff14;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(57, 255, 20, 0.35),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Đang chờ lần bấm đầu tiên để trình duyệt cho phát âm thanh: vòng sáng lan toả gợi ý */
+.sound-toggle.is-waiting {
+  color: #fff;
+  animation: sound-toggle-ping 1.8s ease-out infinite;
+}
+
+@keyframes sound-toggle-ping {
+  0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.55), inset 1px 1px 0 rgba(255, 255, 255, 0.4); }
+  100% { box-shadow: 0 0 0 14px rgba(57, 255, 20, 0), inset 1px 1px 0 rgba(255, 255, 255, 0.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-waiting {
+    animation: none;
+  }
+}
+
+/* ==============================================================================
+   CẶP NÚT LÊN / XUỐNG MỐC (cùng vị trí nút "Bắt đầu", kính lỏng như thanh mốc)
+   ============================================================================== */
+.page-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: page-nav-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-nav-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* Mỗi nút là một giọt kính lỏng tròn riêng */
+.page-nav-btn {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(6px) saturate(170%);
+  backdrop-filter: blur(6px) saturate(170%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.2);
+  color: var(--neon-emerald);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(16, 185, 129, 0.35),
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.6);
+}
+
+.page-nav-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.page-nav-btn:focus-visible {
+  outline: 2px solid var(--neon-emerald);
+  outline-offset: 1px;
+}
+
+.page-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .page-nav {
+    bottom: 5.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-nav {
+    animation: none;
   }
 }
