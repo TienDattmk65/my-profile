@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { playWhoosh } from '../services/soundEffects';
 
 // Thời gian (ms) một lượt chuyển trang mốc
 const PAGE_TRANSITION_MS = 850;
@@ -37,6 +38,10 @@ export function animateScrollTo(top: number, duration = PAGE_TRANSITION_MS): Pro
   cancelPageAnimation();
   const startY = window.scrollY;
   const distance = top - startY;
+  // Tiếng "vút" mỗi lần chuyển sang trang mốc khác (lên = cao dần, xuống = trầm dần)
+  if (Math.abs(distance) > ALIGNED_EPSILON_PX) {
+    playWhoosh(distance < 0 ? 'up' : 'down', Math.min(1.1, Math.max(0.45, duration / 1000)));
+  }
   if (Math.abs(distance) < 1 || duration <= 0 || prefersReducedMotion()) {
     window.scrollTo({ top, behavior: 'instant' });
     return Promise.resolve();
@@ -63,6 +68,26 @@ export const pageScrollTop = (el: HTMLElement) => window.scrollY + el.getBoundin
 
 // Các phần tử là một "trang" cao bằng màn hình: từng mốc timeline + trang khởi đầu (Mặt Đất)
 export const SNAP_PAGE_SELECTOR = '[data-snap-page]';
+
+/**
+ * Chuyển sang trang kế bên theo hướng (dùng cho các nút lên/xuống):
+ * - Trang mốc gần nhất theo hướng đó nằm trong khoảng ~1,5 màn hình -> khớp đúng trang mốc đó.
+ * - Còn lại (đang ở các phần không chia trang như Giới thiệu, Kỹ năng...) -> trượt đúng 1 màn hình.
+ */
+export function scrollToAdjacentPage(direction: Direction) {
+  const y = window.scrollY;
+  const viewportH = window.innerHeight;
+  const maxScroll = document.documentElement.scrollHeight - viewportH;
+  let pageTop: number | undefined;
+  document.querySelectorAll<HTMLElement>(SNAP_PAGE_SELECTOR).forEach((el) => {
+    const top = pageScrollTop(el);
+    if (direction === 'up' && top < y - ALIGNED_EPSILON_PX && (pageTop === undefined || top > pageTop)) pageTop = top;
+    if (direction === 'down' && top > y + ALIGNED_EPSILON_PX && (pageTop === undefined || top < pageTop)) pageTop = top;
+  });
+  const oneScreen = direction === 'up' ? Math.max(0, y - viewportH) : Math.min(maxScroll, y + viewportH);
+  const target = pageTop !== undefined && Math.abs(pageTop - y) <= viewportH * 1.5 ? pageTop : oneScreen;
+  if (Math.abs(target - y) > ALIGNED_EPSILON_PX) animateScrollTo(target);
+}
 
 /**
  * Mỗi mốc là một trang cao bằng màn hình, chuyển trang kiểu "full page":

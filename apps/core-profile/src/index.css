@@ -1298,3 +1298,227 @@ body {
     animation: none;
   }
 }
+
+/* Cây đào đung đưa nhẹ trong gió, xoay quanh gốc cây */
+.tree-sway {
+  transform-box: view-box;
+  transform-origin: 210px 410px;
+  animation: tree-sway 7s ease-in-out infinite;
+}
+
+@keyframes tree-sway {
+  0%, 100% { transform: rotate(-1.8deg); }
+  50% { transform: rotate(1.8deg); }
+}
+
+/* Mầm non thân mảnh: đung đưa mạnh và nhanh hơn */
+.tree-sway--strong {
+  animation-name: tree-sway-strong;
+  animation-duration: 4.5s;
+}
+
+@keyframes tree-sway-strong {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+/* Cây trĩu quả: thân lắc rất nhẹ để quả đào luôn khớp đầu cành */
+.tree-sway--gentle {
+  animation-name: tree-sway-gentle;
+}
+
+@keyframes tree-sway-gentle {
+  0%, 100% { transform: rotate(-0.5deg); }
+  50% { transform: rotate(0.5deg); }
+}
+
+/* Từng chùm lá/hoa rung nhẹ quanh tâm chùm */
+.canopy-flutter {
+  transform-box: view-box;
+  animation: canopy-flutter 3.6s ease-in-out infinite;
+}
+
+@keyframes canopy-flutter {
+  0%, 100% { transform: rotate(-2.5deg) translate(0, 0); }
+  30% { transform: rotate(1.5deg) translate(1.5px, -1px); }
+  65% { transform: rotate(3deg) translate(-1px, 0.5px); }
+}
+
+/* Hạt đào đung đưa như quả lắc quanh đáy hạt, kết hợp bồng bềnh lên xuống */
+.seed-float {
+  transform-box: view-box;
+  transform-origin: 210px 378px;
+  animation: seed-float 4.8s ease-in-out infinite;
+}
+
+@keyframes seed-float {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  25% { transform: translateY(-7px) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(4deg); }
+  75% { transform: translateY(-7px) rotate(0deg); }
+}
+
+/* Cánh hoa đào rơi lả tả từ tán cây xuống gốc */
+.falling-petal {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: petal-fall 9s linear infinite;
+}
+
+@keyframes petal-fall {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  10% { opacity: 0.9; }
+  50% { transform: translate(-18px, 110px) rotate(160deg); }
+  85% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(10px, 220px) rotate(320deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-sway,
+  .seed-float,
+  .canopy-flutter,
+  .falling-petal {
+    animation: none;
+  }
+}
+
+/* ==============================================================================
+   NÚT BẬT/TẮT HIỆU ỨNG ÂM THANH (góc trên phải, kính lỏng)
+   ============================================================================== */
+.sound-toggle {
+  position: fixed;
+  top: 0.85rem;
+  right: 1rem;
+  z-index: 1001;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(6px) saturate(170%);
+  backdrop-filter: blur(6px) saturate(170%);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.sound-toggle:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  transform: scale(1.06);
+}
+
+.sound-toggle.is-on {
+  color: #39ff14;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(57, 255, 20, 0.35),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Đang chờ lần bấm đầu tiên để trình duyệt cho phát âm thanh: vòng sáng lan toả gợi ý */
+.sound-toggle.is-waiting {
+  color: #fff;
+  animation: sound-toggle-ping 1.8s ease-out infinite;
+}
+
+@keyframes sound-toggle-ping {
+  0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.55), inset 1px 1px 0 rgba(255, 255, 255, 0.4); }
+  100% { box-shadow: 0 0 0 14px rgba(57, 255, 20, 0), inset 1px 1px 0 rgba(255, 255, 255, 0.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-waiting {
+    animation: none;
+  }
+}
+
+/* ==============================================================================
+   CẶP NÚT LÊN / XUỐNG MỐC (cùng vị trí nút "Bắt đầu", kính lỏng như thanh mốc)
+   ============================================================================== */
+.page-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: page-nav-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-nav-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* Mỗi nút là một giọt kính lỏng tròn riêng */
+.page-nav-btn {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(6px) saturate(170%);
+  backdrop-filter: blur(6px) saturate(170%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.2);
+  color: var(--neon-emerald);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(16, 185, 129, 0.35),
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.6);
+}
+
+.page-nav-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.page-nav-btn:focus-visible {
+  outline: 2px solid var(--neon-emerald);
+  outline-offset: 1px;
+}
+
+.page-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .page-nav {
+    bottom: 5.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-nav {
+    animation: none;
+  }
+}

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { playKeyClick } from '../services/soundEffects';
 
 interface TypewriterGreetingProps {
   /** Các câu chào thay phiên nhau xuất hiện; dùng "\n" để xuống dòng */
@@ -21,6 +22,22 @@ export const TypewriterGreeting: React.FC<TypewriterGreetingProps> = ({ texts })
   const [textIdx, setTextIdx] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [phase, setPhase] = useState<Phase>('typing');
+  // Chỉ phát tiếng gõ phím khi lời chào đang hiện trên màn hình (chữ vẫn gõ ngầm khi ở mốc khác)
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const isOnScreenRef = useRef(false);
+
+  useEffect(() => {
+    const el = headingRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isOnScreenRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.6 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const fullText = texts[textIdx] ?? '';
   // Tách theo ký tự Unicode để không cắt đôi dấu tiếng Việt / emoji
@@ -45,7 +62,12 @@ export const TypewriterGreeting: React.FC<TypewriterGreetingProps> = ({ texts })
       if (charCount < chars.length) {
         // Xuống dòng dừng lâu hơn một chút như người gõ thật
         delay = chars[charCount] === '\n' ? TYPE_MS * 4 : TYPE_MS + Math.random() * 40;
-        next = () => setCharCount((n) => n + 1);
+        const char = chars[charCount];
+        next = () => {
+          setCharCount((n) => n + 1);
+          // Tiếng gõ phím cho mỗi ký tự xuất hiện (xuống dòng thì không kêu)
+          if (char !== '\n' && isOnScreenRef.current) playKeyClick(char === ' ');
+        };
       } else {
         delay = 0;
         next = () => setPhase('holding');
@@ -78,7 +100,7 @@ export const TypewriterGreeting: React.FC<TypewriterGreetingProps> = ({ texts })
   const isCursorBlinking = phase === 'holding' || phase === 'waiting';
 
   return (
-    <h1 className="typewriter" aria-label={texts.join(' / ').replace(/\n/g, ' ')}>
+    <h1 ref={headingRef} className="typewriter" aria-label={texts.join(' / ').replace(/\n/g, ' ')}>
       {/* Bản ẩn của mọi câu để giữ cố định kích thước khối chữ, không bị nhảy bố cục khi gõ */}
       {texts.map((text, idx) => (
         <span key={idx} className="typewriter-ghost" aria-hidden="true">

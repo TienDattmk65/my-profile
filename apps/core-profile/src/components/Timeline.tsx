@@ -366,22 +366,23 @@ export const Timeline: React.FC<TimelineProps> = ({
                         ))}
                       </div>
 
-                      {/* Chỉ dẫn chọn xem cây */}
-                      {isSelected && (
-                        <div
-                          style={{
-                            marginTop: '0.8rem',
-                            fontSize: '0.75rem',
-                            color: 'var(--neon-emerald)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.3rem',
-                          }}
-                        >
-                          <Sparkles size={12} />
-                          <span>Đang kích hoạt giai đoạn sinh trưởng này trên Cây Mệnh Mộc</span>
-                        </div>
-                      )}
+                      {/* Chỉ dẫn chọn xem cây: luôn giữ chỗ (chỉ ẩn/hiện) để chiều cao thẻ không đổi khi
+                          đổi mốc đang chọn, nếu không các trang mốc phía dưới bị xô lệch lúc đang trượt */}
+                      <div
+                        aria-hidden={!isSelected}
+                        style={{
+                          marginTop: '0.8rem',
+                          fontSize: '0.75rem',
+                          color: 'var(--neon-emerald)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          visibility: isSelected ? 'visible' : 'hidden',
+                        }}
+                      >
+                        <Sparkles size={12} />
+                        <span>Đang kích hoạt giai đoạn sinh trưởng này trên Cây Mệnh Mộc</span>
+                      </div>
                     </div>
                   </div>
                 </div>
