@@ -11,6 +11,7 @@ import { YamlViewerModal } from './components/YamlViewerModal';
 import { AscentStation } from './components/AscentStation';
 import { AltitudeHUD } from './components/AltitudeHUD';
 import { TypewriterGreeting } from './components/TypewriterGreeting';
+import { SoundToggle } from './components/SoundToggle';
 import { parseStartYear } from './services/yearUtils';
 import { Loader2 } from 'lucide-react';
 
@@ -171,6 +172,7 @@ export const App: React.FC = () => {
       </main>
 
       <AltitudeHUD startYear={startYear} currentYear={currentYear} />
+      <SoundToggle />
 
       {/* YAML Config Inspector Modal */}
       <YamlViewerModal

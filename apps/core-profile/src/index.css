@@ -1382,3 +1382,143 @@ body {
     animation: none;
   }
 }
+
+/* ==============================================================================
+   NÚT BẬT/TẮT HIỆU ỨNG ÂM THANH (góc trên phải, kính lỏng)
+   ============================================================================== */
+.sound-toggle {
+  position: fixed;
+  top: 0.85rem;
+  right: 1rem;
+  z-index: 1001;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(6px) saturate(170%);
+  backdrop-filter: blur(6px) saturate(170%);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+
+.sound-toggle:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  transform: scale(1.06);
+}
+
+.sound-toggle.is-on {
+  color: #39ff14;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(57, 255, 20, 0.35),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Đang chờ lần bấm đầu tiên để trình duyệt cho phát âm thanh: vòng sáng lan toả gợi ý */
+.sound-toggle.is-waiting {
+  color: #fff;
+  animation: sound-toggle-ping 1.8s ease-out infinite;
+}
+
+@keyframes sound-toggle-ping {
+  0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.55), inset 1px 1px 0 rgba(255, 255, 255, 0.4); }
+  100% { box-shadow: 0 0 0 14px rgba(57, 255, 20, 0), inset 1px 1px 0 rgba(255, 255, 255, 0.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-toggle.is-waiting {
+    animation: none;
+  }
+}
+
+/* ==============================================================================
+   CẶP NÚT LÊN / XUỐNG MỐC (cùng vị trí nút "Bắt đầu", kính lỏng như thanh mốc)
+   ============================================================================== */
+.page-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: page-nav-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-nav-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+/* Mỗi nút là một giọt kính lỏng tròn riêng */
+.page-nav-btn {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(6px) saturate(170%);
+  backdrop-filter: blur(6px) saturate(170%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.5),
+    inset -1px -1px 0 -0.5px rgba(255, 255, 255, 0.2);
+  color: var(--neon-emerald);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(16, 185, 129, 0.35),
+    inset 1.5px 1.5px 0 -0.5px rgba(255, 255, 255, 0.6);
+}
+
+.page-nav-btn:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.page-nav-btn:focus-visible {
+  outline: 2px solid var(--neon-emerald);
+  outline-offset: 1px;
+}
+
+.page-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .page-nav {
+    bottom: 5.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-nav {
+    animation: none;
+  }
+}

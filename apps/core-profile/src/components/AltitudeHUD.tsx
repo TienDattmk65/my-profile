@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUp, ArrowDown, CalendarClock } from 'lucide-react';
-import { SNAP_PAGE_SELECTOR, animateScrollTo, pageScrollTop } from '../hooks/useMilestonePageSnap';
+import { ArrowUp, ArrowDown, CalendarClock, ChevronUp, ChevronDown } from 'lucide-react';
+import { scrollToAdjacentPage } from '../hooks/useMilestonePageSnap';
 
 interface AltitudeHUDProps {
   startYear: number;
@@ -87,34 +87,48 @@ export const AltitudeHUD: React.FC<AltitudeHUDProps> = ({ startYear, currentYear
   }, [targetYear]);
 
   const isAtGround = progress < 0.03;
+  // Ẩn/khoá nút khi đã ở đỉnh trang (không lên được nữa) hoặc đáy trang (không xuống được nữa)
+  const canGoUp = progress < 0.999;
+  const canGoDown = progress > 0.001;
   // Năm xuất phát (mốc đầu tiên) là năm sinh nên số tuổi = năm đang xem - năm xuất phát
   const age = Math.max(0, displayYear - startYear);
 
   const scrollToSummit = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Nút "Bắt đầu": lên đúng 1 trang mốc ngay phía trên (từ trang khởi đầu -> mốc đầu tiên)
-  const scrollToNextPageUp = () => {
-    const y = window.scrollY;
-    let target: HTMLElement | undefined;
-    let bestTop = -Infinity;
-    document.querySelectorAll<HTMLElement>(SNAP_PAGE_SELECTOR).forEach((el) => {
-      const top = pageScrollTop(el);
-      if (top < y - 2 && top > bestTop) {
-        bestTop = top;
-        target = el;
-      }
-    });
-    if (target) animateScrollTo(bestTop);
-  };
   const scrollToGround = () =>
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
 
   return (
     <>
-      {isAtGround && (
-        <button type="button" className="ascent-hint" onClick={scrollToNextPageUp}>
+      {/* Trang khởi đầu: nút "Bắt đầu" lên mốc đầu tiên. Các trang khác: cặp nút lên/xuống ở cùng vị trí */}
+      {isAtGround ? (
+        <button type="button" className="ascent-hint" onClick={() => scrollToAdjacentPage('up')}>
           <span>Bắt đầu</span>
           <ArrowUp size={16} />
         </button>
+      ) : (
+        <nav className="page-nav" aria-label="Chuyển mốc">
+          {/* Nút xuống bên trái, nút lên bên phải */}
+          <button
+            type="button"
+            className="page-nav-btn"
+            onClick={() => scrollToAdjacentPage('down')}
+            disabled={!canGoDown}
+            aria-label="Xuống mốc phía dưới"
+            title="Xuống mốc phía dưới"
+          >
+            <ChevronDown size={20} />
+          </button>
+          <button
+            type="button"
+            className="page-nav-btn"
+            onClick={() => scrollToAdjacentPage('up')}
+            disabled={!canGoUp}
+            aria-label="Lên mốc phía trên"
+            title="Lên mốc phía trên"
+          >
+            <ChevronUp size={20} />
+          </button>
+        </nav>
       )}
 
       <div className={`altitude-hud${isHidden ? ' is-hidden' : ''}`} role="status" aria-live="polite" aria-hidden={isHidden}>
