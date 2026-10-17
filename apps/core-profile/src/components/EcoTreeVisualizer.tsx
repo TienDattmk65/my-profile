@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { ShowcaseProject } from '../types/profile';
 import { InteractiveFruitButton } from './InteractiveFruitButton';
 
@@ -12,6 +12,49 @@ type Pt = [number, number];
 
 // Gốc cây (tâm phóng to khi cây lớn dần qua các giai đoạn)
 const TREE_BASE: Pt = [210, 410];
+
+// Thứ tự giai đoạn trên trục "độ lớn" --g (0 = hạt ... 4 = trĩu quả).
+// Mọi bộ phận của cây đọc --g để tự mọc ra/thu lại, nên chuyển mốc là một quá trình lớn lên liền mạch
+// (cuộn xuống thì chạy ngược lại), không còn ẩn hình cũ rồi hiện hình mới.
+const STAGE_INDEX: Record<EcoTreeVisualizerProps['currentStage'], number> = {
+  seed: 0,
+  sprout: 1,
+  sapling: 2,
+  blooming: 3,
+  mature: 4,
+};
+
+// Thời gian lớn lên cho bước giai đoạn đầu tiên (ms); nhảy nhiều mốc thì mỗi bước sau cộng thêm ít hơn
+const GROW_FIRST_STEP_MS = 1600;
+const GROW_EXTRA_STEP_MS = 650;
+
+const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+/** Bộ phận mọc ra khi --g đi từ a tới a + d, và (tuỳ chọn) thu lại/rụng khi --g đi từ oa tới oa + od */
+interface Grow {
+  a: number;
+  d: number;
+  oa?: number;
+  od?: number;
+}
+
+// Luôn ghi đủ 4 biến để bộ phận lồng bên trong không thừa hưởng nhầm mốc thời gian của nhóm cha
+const growStyle = ({ a, d, oa = 99, od = 1 }: Grow, origin?: Pt): React.CSSProperties =>
+  ({
+    '--a': a,
+    '--d': d,
+    '--oa': oa,
+    '--od': od,
+    ...(origin ? { transformOrigin: `${origin[0]}px ${origin[1]}px` } : {}),
+  }) as React.CSSProperties;
+
+// Có mặt ngay từ đầu (g = 0), chỉ dùng cho bộ phận cần biến mất dần
+const ALWAYS = { a: -1, d: 1 };
+
+type GrowAt = (index: number) => Grow;
 
 // Bộ sinh số ngẫu nhiên có hạt giống: mỗi lần render tán lá/hoa luôn giống hệt nhau
 const seededRandom = (seed: number) => () => {
@@ -88,7 +131,7 @@ const BRANCHES: Branch[] = [
   { p: [[286, 202], [284, 176], [276, 152], [262, 136]], w: [6, 2] },
 ];
 
-// Tâm các chùm tán lá/hoa (đặt quanh đầu cành)
+// Tâm các chùm tán lá/hoa (đặt quanh đầu cành). 3 chùm đầu nằm ở đầu 3 cành chính nên mọc sớm nhất
 const CANOPY_CLUSTERS: { c: Pt; r: number }[] = [
   { c: [108, 158], r: 46 },
   { c: [210, 98], r: 54 },
@@ -99,10 +142,9 @@ const CANOPY_CLUSTERS: { c: Pt; r: number }[] = [
   { c: [346, 206], r: 32 },
   { c: [168, 92], r: 28 },
 ];
+const MAIN_CLUSTERS = 3;
 
-// Tỉ lệ cây ở từng giai đoạn: cùng một dáng cây lớn dần theo năm tháng
-const STAGE_SCALE = { sapling: 0.6, blooming: 0.86, mature: 1 } as const;
-
+// Màu vầng sáng sau cây theo giai đoạn (chuyển màu mượt bằng CSS transition)
 const STAGE_AURA: Record<EcoTreeVisualizerProps['currentStage'], string> = {
   seed: '#ffb38a',
   sprout: '#74c69d',
@@ -111,11 +153,101 @@ const STAGE_AURA: Record<EcoTreeVisualizerProps['currentStage'], string> = {
   mature: '#ffb38a',
 };
 
+// ============================================================================
+// LỊCH MỌC CỦA TỪNG BỘ PHẬN THEO --g
+//   0 -> 1 : hạt thu nhỏ rơi xuống gò đất, nứt vỏ, mầm vươn lên và xoè 2 lá mầm
+//   1 -> 2 : mầm hoá thân gỗ, 3 cành chính vươn ra, lá non và nụ đầu tiên
+//   2 -> 3 : cành nhỏ toả ra, tán dày lên, nụ bung thành hoa, cánh hoa bắt đầu rơi
+//   3 -> 4 : lá phủ kín tán, phần lớn hoa rụng, nụ tàn và quả đào chín
+// ============================================================================
+const backLeafGrow =
+  (cluster: number): GrowAt =>
+  (j) => {
+    const main = cluster < MAIN_CLUSTERS;
+    if (j < 7) return { a: (main ? 2.0 : 2.25) + j * 0.08 + (main ? 0 : cluster * 0.02), d: 0.35 };
+    return { a: 3.05 + (j - 7) * 0.12, d: 0.35 };
+  };
+
+const frontLeafGrow =
+  (cluster: number): GrowAt =>
+  (j) => {
+    if (cluster < MAIN_CLUSTERS) {
+      if (j < 6) return { a: 1.3 + j * 0.09 + cluster * 0.03, d: 0.35 };
+      return { a: 3.0 + (j - 6) * 0.15, d: 0.35 };
+    }
+    if (j < 4) return { a: 2.15 + j * 0.1 + cluster * 0.02, d: 0.35 };
+    return { a: 3.0 + (j - 4) * 0.12, d: 0.35 };
+  };
+
+const budGrow =
+  (cluster: number): GrowAt =>
+  (j) => ({
+    a: (cluster < MAIN_CLUSTERS ? 1.65 : 2.35) + j * 0.1,
+    d: 0.3,
+    // Nụ tàn đi khi quả đào bắt đầu chín
+    oa: 3.2 + j * 0.1,
+    od: 0.3,
+  });
+
+const blossomGrow =
+  (cluster: number, count: number): GrowAt =>
+  (j) => ({
+    a: 2.35 + (j / count) * 0.5 + cluster * 0.03,
+    d: 0.3,
+    // Chỉ giữ lại 3 bông mỗi chùm khi cây trĩu quả, số còn lại rụng dần
+    ...(j >= 3 ? { oa: 3.15 + (j / count) * 0.4, od: 0.3 } : {}),
+  });
+
 export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
   currentStage,
   projects,
   onSelectProject,
 }) => {
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const fruitLayerRef = useRef<HTMLDivElement | null>(null);
+  const growthRef = useRef(STAGE_INDEX[currentStage]);
+  const isMature = currentStage === 'mature';
+
+  const applyGrowth = (value: number) => {
+    growthRef.current = value;
+    canvasRef.current?.style.setProperty('--g', value.toFixed(4));
+  };
+
+  // Hiện đúng giai đoạn ngay lần vẽ đầu tiên (trước khi trình duyệt vẽ ra màn hình)
+  useLayoutEffect(() => {
+    applyGrowth(growthRef.current);
+  }, []);
+
+  // Đổi mốc: chạy --g từ độ lớn hiện tại tới giai đoạn mới. Nếu đang lớn dở mà người xem lướt tiếp
+  // thì nối tiếp từ đúng chỗ đang dừng, cuộn ngược thì cây thu nhỏ ngược lại.
+  useEffect(() => {
+    const from = growthRef.current;
+    const to = STAGE_INDEX[currentStage];
+    const distance = Math.abs(to - from);
+    if (distance < 0.001 || prefersReducedMotion()) {
+      applyGrowth(to);
+      return;
+    }
+
+    const duration =
+      GROW_FIRST_STEP_MS * Math.min(distance, 1) + GROW_EXTRA_STEP_MS * Math.max(distance - 1, 0);
+    const start = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      applyGrowth(from + (to - from) * easeInOutCubic(t));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [currentStage]);
+
+  // Quả đào chỉ bấm được (và lấy focus bàn phím) khi đã ở mốc trĩu quả
+  useEffect(() => {
+    const layer = fruitLayerRef.current as (HTMLDivElement & { inert?: boolean }) | null;
+    if (layer) layer.inert = !isMature;
+  }, [isMature]);
+
   // Tọa độ các Quả Đào Microservices trên cành cây đào
   const fruitPositions: Record<string, { x: number; y: number }> = {
     'devops-k8s': { x: 26, y: 35 },
@@ -123,47 +255,54 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
     'data-analytics': { x: 74, y: 36 },
   };
 
-  // Lá đào: thon dài, đầu nhọn, có gân giữa và nửa lá gấp nếp tối hơn
-  const renderLeaf = (key: string, x: number, y: number, rotation: number, scale: number, dark = false) => (
+  // Lá đào: thon dài, đầu nhọn, có gân giữa và nửa lá gấp nếp tối hơn. Mọc ra từ cuống (toạ độ 0 0)
+  const renderLeaf = (key: string, x: number, y: number, rotation: number, scale: number, grow: Grow, dark = false) => (
     <g key={key} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(2)})`}>
-      <path d="M0 0 C 7 -6, 10 -20, 0 -34 C -10 -20, -7 -6, 0 0 Z" fill={dark ? 'url(#leafDark)' : 'url(#leafLight)'} />
-      <path d="M0 0 C 7 -6, 10 -20, 0 -34 L 0 0 Z" fill="#081c15" opacity={dark ? 0.25 : 0.18} />
-      <path d="M0 -1 Q 1 -17 0 -32" stroke="#1b4332" strokeWidth="0.9" fill="none" opacity="0.7" />
+      <g className="grow" style={growStyle(grow)}>
+        <path d="M0 0 C 7 -6, 10 -20, 0 -34 C -10 -20, -7 -6, 0 0 Z" fill={dark ? 'url(#leafDark)' : 'url(#leafLight)'} />
+        <path d="M0 0 C 7 -6, 10 -20, 0 -34 L 0 0 Z" fill="#081c15" opacity={dark ? 0.25 : 0.18} />
+        <path d="M0 -1 Q 1 -17 0 -32" stroke="#1b4332" strokeWidth="0.9" fill="none" opacity="0.7" />
+      </g>
     </g>
   );
 
-  // Hoa đào 5 cánh: cánh tròn có khía ở đầu, chuyển màu hồng đậm -> trắng hồng, nhuỵ vàng
-  const renderBlossom = (key: string, x: number, y: number, rotation: number, scale: number) => (
+  // Hoa đào 5 cánh: cánh tròn có khía ở đầu, chuyển màu hồng đậm -> trắng hồng, nhuỵ vàng.
+  // Khi nở thì vừa lớn vừa xoay nhẹ như nụ đang bung cánh
+  const renderBlossom = (key: string, x: number, y: number, rotation: number, scale: number, grow: Grow) => (
     <g
       key={key}
       transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(2)})`}
       className="peach-blossom-group"
     >
-      {[0, 72, 144, 216, 288].map((angle) => (
-        <path
-          key={angle}
-          d="M0 0 C -8 -3, -11 -13, -5 -18 Q 0 -15.5, 5 -18 C 11 -13, 8 -3, 0 0 Z"
-          transform={`rotate(${angle})`}
-          fill="url(#petalGrad)"
-          stroke="#ff8fab"
-          strokeWidth="0.5"
-        />
-      ))}
-      <circle r="4.2" fill="#ff4d6d" />
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-        <g key={angle} transform={`rotate(${angle})`}>
-          <line x1="0" y1="-2" x2="0" y2="-7" stroke="#c9184a" strokeWidth="0.7" />
-          <circle cy="-7.3" r="1.1" fill="#ffd166" />
-        </g>
-      ))}
+      <g className="grow grow--bloom" style={growStyle(grow)}>
+        {[0, 72, 144, 216, 288].map((angle) => (
+          <path
+            key={angle}
+            d="M0 0 C -8 -3, -11 -13, -5 -18 Q 0 -15.5, 5 -18 C 11 -13, 8 -3, 0 0 Z"
+            transform={`rotate(${angle})`}
+            fill="url(#petalGrad)"
+            stroke="#ff8fab"
+            strokeWidth="0.5"
+          />
+        ))}
+        <circle r="4.2" fill="#ff4d6d" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+          <g key={angle} transform={`rotate(${angle})`}>
+            <line x1="0" y1="-2" x2="0" y2="-7" stroke="#c9184a" strokeWidth="0.7" />
+            <circle cy="-7.3" r="1.1" fill="#ffd166" />
+          </g>
+        ))}
+      </g>
     </g>
   );
 
   // Nụ hoa đào hồng chúm chím với đài xanh
-  const renderBud = (key: string, x: number, y: number, rotation: number, scale = 1) => (
+  const renderBud = (key: string, x: number, y: number, rotation: number, scale: number, grow: Grow) => (
     <g key={key} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rotation.toFixed(1)}) scale(${scale})`}>
-      <path d="M0 0 C -5 -4, -5 -11, 0 -15 C 5 -11, 5 -4, 0 0 Z" fill="url(#budGrad)" />
-      <path d="M0 0 C -4 -1, -5 -5, -3 -7 L 0 -3 L 3 -7 C 5 -5, 4 -1, 0 0 Z" fill="#40916c" />
+      <g className="grow" style={growStyle(grow)}>
+        <path d="M0 0 C -5 -4, -5 -11, 0 -15 C 5 -11, 5 -4, 0 0 Z" fill="url(#budGrad)" />
+        <path d="M0 0 C -4 -1, -5 -5, -3 -7 L 0 -3 L 3 -7 C 5 -5, 4 -1, 0 0 Z" fill="#40916c" />
+      </g>
     </g>
   );
 
@@ -174,6 +313,7 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
     seed: number,
     kind: 'leaf' | 'leafDark' | 'blossom' | 'bud',
     count: number,
+    growAt: GrowAt,
     sizeScale = 1
   ) => {
     const rand = seededRandom(seed);
@@ -184,9 +324,10 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
       const y = c[1] + Math.sin(angle) * dist * 0.85;
       const outward = (angle * 180) / Math.PI + 90;
       const key = `${prefix}-${i}`;
-      if (kind === 'blossom') return renderBlossom(key, x, y, rand() * 72, (0.75 + rand() * 0.45) * sizeScale);
-      if (kind === 'bud') return renderBud(key, x, y, outward + (rand() - 0.5) * 40, 0.9 * sizeScale);
-      return renderLeaf(key, x, y, outward + (rand() - 0.5) * 50, (0.75 + rand() * 0.45) * sizeScale, kind === 'leafDark');
+      const grow = growAt(i);
+      if (kind === 'blossom') return renderBlossom(key, x, y, rand() * 72, (0.75 + rand() * 0.45) * sizeScale, grow);
+      if (kind === 'bud') return renderBud(key, x, y, outward + (rand() - 0.5) * 40, 0.9 * sizeScale, grow);
+      return renderLeaf(key, x, y, outward + (rand() - 0.5) * 50, (0.75 + rand() * 0.45) * sizeScale, grow, kind === 'leafDark');
     });
     // Mỗi chùm rung riêng quanh tâm chùm, lệch nhịp nhau như có gió lùa qua tán
     return (
@@ -204,8 +345,9 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
     );
   };
 
-  // Gò đất và thảm cỏ cắt giấy ở gốc cây
-  const renderGround = (halfWidth: number) => {
+  // Gò đất và thảm cỏ cắt giấy ở gốc cây: nhô lên khi hạt rơi xuống, rộng dần theo tán cây
+  const renderGround = () => {
+    const halfWidth = 150;
     const [cx, cy] = TREE_BASE;
     const rand = seededRandom(7);
     const blades: React.ReactNode[] = [];
@@ -221,54 +363,154 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
       );
     }
     return (
-      <g filter="url(#softShadow)">
-        <path
-          d={`M${cx - halfWidth} ${cy + 8} C ${cx - halfWidth * 0.6} ${cy - 10}, ${cx + halfWidth * 0.6} ${cy - 10}, ${cx + halfWidth} ${cy + 8} C ${cx + halfWidth * 0.6} ${cy + 22}, ${cx - halfWidth * 0.6} ${cy + 22}, ${cx - halfWidth} ${cy + 8} Z`}
-          fill="url(#soilGrad)"
-        />
-        {blades}
+      <g className="ground-spread">
+        <g className="grow" style={growStyle({ a: 0.3, d: 0.35 }, TREE_BASE)}>
+          <g filter="url(#softShadow)">
+            <path
+              d={`M${cx - halfWidth} ${cy + 8} C ${cx - halfWidth * 0.6} ${cy - 10}, ${cx + halfWidth * 0.6} ${cy - 10}, ${cx + halfWidth} ${cy + 8} C ${cx + halfWidth * 0.6} ${cy + 22}, ${cx - halfWidth * 0.6} ${cy + 22}, ${cx - halfWidth} ${cy + 8} Z`}
+              fill="url(#soilGrad)"
+            />
+            {blades}
+          </g>
+        </g>
       </g>
     );
   };
 
-  // Cánh hoa rơi lả tả (hoạt ảnh CSS)
-  const renderFallingPetals = (seed: number, count: number) => {
-    const rand = seededRandom(seed);
-    return Array.from({ length: count }, (_, i) => (
-      <g key={i} transform={`translate(${(90 + rand() * 240).toFixed(1)} ${(120 + rand() * 80).toFixed(1)})`}>
-        <g className="falling-petal" style={{ animationDelay: `${(i * 1.7 + rand()).toFixed(2)}s` }}>
-          <path d="M0 0 C -5 -2, -7 -9, -3 -12 Q 0 -10, 3 -12 C 7 -9, 5 -2, 0 0 Z" fill="url(#petalGrad)" />
+  // Cánh hoa rơi lả tả (hoạt ảnh CSS): bắt đầu rơi khi hoa nở, thưa dần khi cây kết quả
+  const renderFallingPetals = () => {
+    const rand = seededRandom(5);
+    return Array.from({ length: 7 }, (_, i) => (
+      <g
+        key={i}
+        className="grow grow--fade"
+        style={growStyle({ a: 2.6 + i * 0.04, d: 0.35, ...(i >= 4 ? { oa: 3.5, od: 0.4 } : {}) })}
+      >
+        <g transform={`translate(${(90 + rand() * 240).toFixed(1)} ${(120 + rand() * 80).toFixed(1)})`}>
+          <g className="falling-petal" style={{ animationDelay: `${(i * 1.7 + rand()).toFixed(2)}s` }}>
+            <path d="M0 0 C -5 -2, -7 -9, -3 -12 Q 0 -10, 3 -12 C 7 -9, 5 -2, 0 0 Z" fill="url(#petalGrad)" />
+          </g>
         </g>
       </g>
     ));
   };
 
-  // Cây đào (non / nở hoa / trĩu quả): cùng một khung cây, phóng to dần từ gốc
-  const renderTree = (stage: keyof typeof STAGE_SCALE) => {
-    const scale = STAGE_SCALE[stage];
-    const [bx, by] = TREE_BASE;
-    const isSapling = stage === 'sapling';
-    const branches = isSapling ? BRANCHES.slice(0, 3) : BRANCHES;
-    const clusters = isSapling ? CANOPY_CLUSTERS.slice(0, 3) : CANOPY_CLUSTERS;
+  // Mầm cây: thân non vươn lên từ hạt nứt, xoè 2 lá mầm; hoá gỗ (mờ dần) khi thân cây đào mọc lên
+  const renderSprout = () => (
+    <g className="grow grow--fade" style={growStyle({ ...ALWAYS, oa: 1.15, od: 0.4 })}>
+      <g className="tree-sway tree-sway--strong">
+        <g className="grow grow--stem" style={growStyle({ a: 0.5, d: 0.35 }, [210, 404])}>
+          <path d={taperedPath([210, 404], [204, 362], [218, 332], [210, 290], 9, 5)} fill="#74a57f" filter="url(#paperShadow)" />
+          <path d="M207 400 C 203 365, 214 334, 208 294" stroke="#b7e4c7" strokeWidth="1.4" fill="none" opacity="0.5" />
+        </g>
+        {/* 2 lá mầm tròn xoè ra từ ngọn thân */}
+        <g className="grow" style={growStyle({ a: 0.72, d: 0.28 }, [210, 292])} filter="url(#paperShadow)">
+          <path d="M209 292 C 196 280, 168 276, 146 288 C 160 306, 192 308, 209 292 Z" fill="url(#leafLight)" />
+          <path d="M209 292 C 196 280, 168 276, 146 288 C 172 290, 194 293, 209 292 Z" fill="#081c15" opacity="0.2" />
+          <path d="M211 292 C 224 278, 252 272, 276 282 C 262 302, 230 306, 211 292 Z" fill="url(#leafLight)" />
+          <path d="M211 292 C 224 278, 252 272, 276 282 C 250 286, 228 290, 211 292 Z" fill="#081c15" opacity="0.2" />
+        </g>
+        {/* Chồi non ở ngọn */}
+        {renderLeaf('top-l', 210, 292, -18, 0.7, { a: 0.84, d: 0.2 })}
+        {renderLeaf('top-r', 210, 292, 22, 0.6, { a: 0.88, d: 0.2 })}
+      </g>
+    </g>
+  );
 
-    return (
-      <g transform={`translate(${bx} ${by}) scale(${scale}) translate(${-bx} ${-by})`}>
-        {/* Cây trĩu quả chỉ lắc nhẹ phần thân để các nút quả đào (lớp HTML phía trên) không lệch khỏi đầu cành */}
-        <g className={`tree-sway${stage === 'mature' ? ' tree-sway--gentle' : ''}`}>
-          {/* Lớp tán phía sau (tối hơn) tạo chiều sâu cắt giấy nhiều lớp */}
-          {stage !== 'sapling' && (
-            <g filter="url(#softShadow)" opacity="0.9">
-              {clusters.map((cl, i) => renderCluster(`back-${i}`, cl, 100 + i, 'leafDark', stage === 'mature' ? 12 : 7, 1.05))}
+  // Vỏ hạt đào nứt đôi nằm trên gò đất: tách ra khi mầm nhú, mục dần vào đất khi cây lớn
+  const renderSeedShell = () => (
+    <g filter="url(#paperShadow)">
+      <g className="grow grow--split-l" style={growStyle({ a: 0.42, d: 0.25, oa: 1.2, od: 0.45 }, [210, 410])}>
+        <path d="M206 404 C 196 392, 180 390, 170 398 C 168 410, 184 418, 204 412 Z" fill="url(#peachSeedGrad)" stroke="#2e180f" strokeWidth="1" />
+        <path d="M178 401 C 186 398, 194 400, 200 405" stroke="#2a150d" strokeWidth="1.6" fill="none" />
+      </g>
+      <g className="grow grow--split-r" style={growStyle({ a: 0.42, d: 0.25, oa: 1.2, od: 0.45 }, [210, 410])}>
+        <path d="M214 404 C 226 394, 242 394, 250 402 C 250 413, 234 418, 216 412 Z" fill="url(#peachSeedGrad)" stroke="#2e180f" strokeWidth="1" />
+        <path d="M224 402 C 232 399, 240 400, 245 405" stroke="#2a150d" strokeWidth="1.6" fill="none" />
+      </g>
+    </g>
+  );
+
+  // Hạt đào nguyên vẹn: dáng hạnh nhân một đầu nhọn, đường gờ dọc, rãnh nhăn nổi khối.
+  // Khi lên mốc mầm thì thu nhỏ, rơi xuống gò đất rồi nhường chỗ cho vỏ hạt nứt đôi
+  const renderSeed = () => (
+    <>
+      <g className="grow grow--fade" style={growStyle({ ...ALWAYS, oa: 0, od: 0.35 })}>
+        <ellipse cx="210" cy="392" rx="78" ry="11" fill="#000" opacity="0.3" />
+      </g>
+      <g className="seed-travel">
+        <g className="grow grow--fade" style={growStyle({ ...ALWAYS, oa: 0.42, od: 0.16 })}>
+          <g className="seed-float" filter="url(#deepPaperShadow)">
+            <path
+              d="M210 132 C 262 168, 288 240, 272 302 C 260 348, 236 374, 210 378 C 184 374, 160 348, 148 302 C 132 240, 158 168, 210 132 Z"
+              fill="url(#peachSeedGrad)"
+              stroke="#2e180f"
+              strokeWidth="1.5"
+            />
+            {/* Rãnh nhăn: nét tối + viền sáng bên cạnh tạo cảm giác lõm sâu */}
+            <g fill="none" strokeLinecap="round">
+              {[
+                'M190 176 C 176 200, 171 226, 178 250',
+                'M171 218 C 161 244, 162 272, 172 296',
+                'M196 208 C 186 232, 186 256, 194 276',
+                'M166 306 C 172 330, 184 348, 198 360',
+                'M186 294 C 186 316, 192 334, 203 346',
+                'M201 244 C 196 262, 197 280, 203 296',
+                'M232 176 C 246 200, 251 226, 244 250',
+                'M251 218 C 261 244, 260 272, 250 296',
+                'M226 208 C 236 232, 236 256, 228 276',
+                'M256 306 C 250 330, 238 348, 224 360',
+                'M236 294 C 236 316, 230 334, 219 346',
+                'M221 244 C 226 262, 225 280, 219 296',
+                'M180 270 C 177 280, 178 290, 182 300',
+                'M242 270 C 245 280, 244 290, 240 300',
+              ].map((d, i) => (
+                <g key={i}>
+                  <path d={d} stroke="#2a150d" strokeWidth="3.4" opacity="0.85" />
+                  <path d={d} stroke="#d6a183" strokeWidth="1.1" opacity="0.4" transform="translate(1.6 1.4)" />
+                </g>
+              ))}
             </g>
-          )}
+            {/* Đường gờ dọc giữa hạt */}
+            <path d="M210 138 C 222 196, 224 292, 211 372" stroke="#2a150d" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+            <path d="M207 140 C 218 198, 219 290, 207 370" stroke="#e0b394" strokeWidth="1.4" fill="none" opacity="0.5" strokeLinecap="round" />
+            {/* Vệt bóng sáng */}
+            <path d="M178 190 C 168 214, 164 240, 168 262" stroke="#f3d2bd" strokeWidth="5" fill="none" opacity="0.18" strokeLinecap="round" />
+            {/* Sẹo cuống ở đáy hạt */}
+            <ellipse cx="210" cy="371" rx="8" ry="4" fill="#2a150d" opacity="0.8" />
+          </g>
+        </g>
+      </g>
+    </>
+  );
 
-          {/* Thân & cành gỗ nâu thon dần về ngọn */}
-          <g filter="url(#paperShadow)">
-            {/* Vẽ thân trước, cành sau để gốc cành phủ lên thân, chỗ phân nhánh liền mạch */}
+  // Cây đào: một khung cây duy nhất lớn dần từ gốc, cành/lá/nụ/hoa mọc thêm theo lịch phía trên
+  const renderTree = () => (
+    <g className="tree-growth">
+      {/* Lắc mạnh khi còn non, nhẹ dần khi trĩu quả để nút quả đào (lớp HTML phía trên) không lệch đầu cành */}
+      <g className="tree-sway tree-sway--growing">
+        {/* Lớp tán phía sau (tối hơn) tạo chiều sâu cắt giấy nhiều lớp */}
+        <g filter="url(#softShadow)" opacity="0.9">
+          {CANOPY_CLUSTERS.map((cl, i) => renderCluster(`back-${i}`, cl, 100 + i, 'leafDark', 12, backLeafGrow(i), 1.05))}
+        </g>
+
+        {/* Thân & cành gỗ nâu thon dần về ngọn */}
+        <g filter="url(#paperShadow)">
+          {/* Vẽ thân trước, cành sau để gốc cành phủ lên thân, chỗ phân nhánh liền mạch.
+              Thân hoá gỗ từ thân mầm: vươn lên từ gốc trong lúc thân mầm mờ đi */}
+          <g className="grow grow--stem" style={growStyle({ a: 0.95, d: 0.45 }, [210, 412])}>
             <path d={taperedPath(...TRUNK.p, ...TRUNK.w)} fill="url(#barkGrad)" />
-            {branches.map((b, i) => (
-              <path key={i} d={taperedPath(...b.p, ...b.w)} fill="url(#barkGrad)" />
-            ))}
+          </g>
+          {BRANCHES.map((b, i) => (
+            <g
+              key={i}
+              className="grow"
+              style={growStyle(i < 3 ? { a: 1.15 + i * 0.08, d: 0.45 } : { a: 2.0 + (i - 3) * 0.07, d: 0.45 }, b.p[0])}
+            >
+              <path d={taperedPath(...b.p, ...b.w)} fill="url(#barkGrad)" />
+            </g>
+          ))}
+          <g className="grow grow--fade" style={growStyle({ a: 1.2, d: 0.5 })}>
             {/* Rễ loe ở gốc */}
             <path d="M188 412 C 182 404, 176 402, 166 404 C 178 398, 190 396, 196 400 Z" fill="url(#barkGrad)" />
             <path d="M232 412 C 238 404, 244 402, 256 405 C 244 398, 230 396, 224 400 Z" fill="url(#barkGrad)" />
@@ -280,36 +522,29 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
             </g>
             <path d="M196 400 C 192 360, 200 320, 196 268" stroke="#c08a6c" strokeWidth="2.2" fill="none" opacity="0.35" strokeLinecap="round" />
           </g>
-
-          {/* Lớp tán phía trước */}
-          {stage === 'sapling' && (
-            <>
-              {clusters.map((cl, i) => renderCluster(`leaf-${i}`, { c: cl.c, r: cl.r * 0.6 }, 200 + i, 'leaf', 6, 1.15))}
-              {clusters.map((cl, i) => renderCluster(`bud-${i}`, { c: cl.c, r: cl.r * 0.5 }, 300 + i, 'bud', 2, 1.3))}
-            </>
-          )}
-          {stage === 'blooming' && (
-            <>
-              {clusters.map((cl, i) => renderCluster(`leaf-${i}`, cl, 200 + i, 'leaf', 4))}
-              {clusters.map((cl, i) => renderCluster(`bloom-${i}`, cl, 400 + i, 'blossom', i < 3 ? 9 : 6))}
-              {clusters.map((cl, i) => renderCluster(`bud-${i}`, cl, 300 + i, 'bud', 2))}
-            </>
-          )}
-          {stage === 'mature' && (
-            <>
-              {clusters.map((cl, i) => renderCluster(`leaf-${i}`, cl, 200 + i, 'leaf', 10))}
-              {clusters.map((cl, i) => renderCluster(`bloom-${i}`, cl, 400 + i, 'blossom', 3, 0.9))}
-            </>
-          )}
         </g>
+
+        {/* Lớp tán phía trước: lá -> hoa -> nụ */}
+        {CANOPY_CLUSTERS.map((cl, i) => renderCluster(`leaf-${i}`, cl, 200 + i, 'leaf', 10, frontLeafGrow(i)))}
+        {CANOPY_CLUSTERS.map((cl, i) => {
+          const count = i < MAIN_CLUSTERS ? 9 : 6;
+          return renderCluster(`bloom-${i}`, cl, 400 + i, 'blossom', count, blossomGrow(i, count));
+        })}
+        {CANOPY_CLUSTERS.map((cl, i) =>
+          renderCluster(`bud-${i}`, cl, 300 + i, 'bud', 2, budGrow(i), i < MAIN_CLUSTERS ? 1.2 : 1)
+        )}
       </g>
-    );
-  };
+    </g>
+  );
+
+  const aura = STAGE_AURA[currentStage];
 
   return (
     <div className="tree-sticky-card tree-sticky-card--bare">
       {/* SVG Canvas Cây Đào & Hạt Đào Nghệ Thuật Cắt Giấy */}
       <div
+        ref={canvasRef}
+        className="eco-tree-canvas"
         style={{
           position: 'relative',
           width: '100%',
@@ -339,11 +574,11 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
               <feDropShadow dx="3" dy="8" stdDeviation="7" floodColor="#000" floodOpacity="0.55" />
             </filter>
 
-            {/* Vầng sáng mờ phía sau cây, đổi màu theo giai đoạn */}
+            {/* Vầng sáng mờ phía sau cây, chuyển màu dần theo giai đoạn */}
             <radialGradient id="auraGrad">
-              <stop offset="0%" stopColor={STAGE_AURA[currentStage]} stopOpacity="0.22" />
-              <stop offset="60%" stopColor={STAGE_AURA[currentStage]} stopOpacity="0.06" />
-              <stop offset="100%" stopColor={STAGE_AURA[currentStage]} stopOpacity="0" />
+              <stop offset="0%" className="aura-stop" style={{ stopColor: aura, stopOpacity: 0.22 }} />
+              <stop offset="60%" className="aura-stop" style={{ stopColor: aura, stopOpacity: 0.06 }} />
+              <stop offset="100%" className="aura-stop" style={{ stopColor: aura, stopOpacity: 0 }} />
             </radialGradient>
 
             {/* Vỏ cây: ánh sáng chiếu từ trái. Dùng chung toạ độ cả cây (userSpaceOnUse) để thân và
@@ -389,112 +624,31 @@ export const EcoTreeVisualizer: React.FC<EcoTreeVisualizerProps> = ({
           {/* Vầng sáng nền */}
           <ellipse cx="210" cy="235" rx="200" ry="210" fill="url(#auraGrad)" />
 
-          {/* ====================================================================
-              GIAI ĐOẠN 1: HẠT ĐÀO (2002 - KHỞI NGUYÊN)
-              Chỉ có hạt đào: dáng hạnh nhân một đầu nhọn, đường gờ dọc, rãnh nhăn nổi khối
-              ==================================================================== */}
-          {currentStage === 'seed' && (
-            <g className="tree-stage">
-              <ellipse cx="210" cy="392" rx="78" ry="11" fill="#000" opacity="0.3" />
-              <g className="seed-float" filter="url(#deepPaperShadow)">
-                <path
-                  d="M210 132 C 262 168, 288 240, 272 302 C 260 348, 236 374, 210 378 C 184 374, 160 348, 148 302 C 132 240, 158 168, 210 132 Z"
-                  fill="url(#peachSeedGrad)"
-                  stroke="#2e180f"
-                  strokeWidth="1.5"
-                />
-                {/* Rãnh nhăn: nét tối + viền sáng bên cạnh tạo cảm giác lõm sâu */}
-                <g fill="none" strokeLinecap="round">
-                  {[
-                    'M190 176 C 176 200, 171 226, 178 250',
-                    'M171 218 C 161 244, 162 272, 172 296',
-                    'M196 208 C 186 232, 186 256, 194 276',
-                    'M166 306 C 172 330, 184 348, 198 360',
-                    'M186 294 C 186 316, 192 334, 203 346',
-                    'M201 244 C 196 262, 197 280, 203 296',
-                    'M232 176 C 246 200, 251 226, 244 250',
-                    'M251 218 C 261 244, 260 272, 250 296',
-                    'M226 208 C 236 232, 236 256, 228 276',
-                    'M256 306 C 250 330, 238 348, 224 360',
-                    'M236 294 C 236 316, 230 334, 219 346',
-                    'M221 244 C 226 262, 225 280, 219 296',
-                    'M180 270 C 177 280, 178 290, 182 300',
-                    'M242 270 C 245 280, 244 290, 240 300',
-                  ].map((d, i) => (
-                    <g key={i}>
-                      <path d={d} stroke="#2a150d" strokeWidth="3.4" opacity="0.85" />
-                      <path d={d} stroke="#d6a183" strokeWidth="1.1" opacity="0.4" transform="translate(1.6 1.4)" />
-                    </g>
-                  ))}
-                </g>
-                {/* Đường gờ dọc giữa hạt */}
-                <path d="M210 138 C 222 196, 224 292, 211 372" stroke="#2a150d" strokeWidth="2.6" fill="none" strokeLinecap="round" />
-                <path d="M207 140 C 218 198, 219 290, 207 370" stroke="#e0b394" strokeWidth="1.4" fill="none" opacity="0.5" strokeLinecap="round" />
-                {/* Vệt bóng sáng */}
-                <path d="M178 190 C 168 214, 164 240, 168 262" stroke="#f3d2bd" strokeWidth="5" fill="none" opacity="0.18" strokeLinecap="round" />
-                {/* Sẹo cuống ở đáy hạt */}
-                <ellipse cx="210" cy="371" rx="8" ry="4" fill="#2a150d" opacity="0.8" />
-              </g>
-            </g>
-          )}
-
-          {/* ====================================================================
-              GIAI ĐOẠN 2: MẦM CÂY ĐÀO ĐÂM CHỒI (2018)
-              Hạt đào nứt vỏ trên gò đất, mầm non vươn lên với 2 lá mầm
-              ==================================================================== */}
-          {currentStage === 'sprout' && (
-            <g className="tree-stage">
-              <g className="tree-sway tree-sway--strong">
-                {/* Thân mầm */}
-                <path d={taperedPath([210, 404], [204, 362], [218, 332], [210, 290], 9, 5)} fill="#74a57f" filter="url(#paperShadow)" />
-                <path d="M207 400 C 203 365, 214 334, 208 294" stroke="#b7e4c7" strokeWidth="1.4" fill="none" opacity="0.5" />
-                {/* 2 lá mầm tròn */}
-                <g filter="url(#paperShadow)">
-                  <path d="M209 292 C 196 280, 168 276, 146 288 C 160 306, 192 308, 209 292 Z" fill="url(#leafLight)" />
-                  <path d="M209 292 C 196 280, 168 276, 146 288 C 172 290, 194 293, 209 292 Z" fill="#081c15" opacity="0.2" />
-                  <path d="M211 292 C 224 278, 252 272, 276 282 C 262 302, 230 306, 211 292 Z" fill="url(#leafLight)" />
-                  <path d="M211 292 C 224 278, 252 272, 276 282 C 250 286, 228 290, 211 292 Z" fill="#081c15" opacity="0.2" />
-                </g>
-                {/* Chồi non ở ngọn */}
-                {renderLeaf('top-l', 210, 292, -18, 0.7)}
-                {renderLeaf('top-r', 210, 292, 22, 0.6)}
-              </g>
-              {renderGround(95)}
-              {/* Vỏ hạt đào nứt đôi nằm trên gò đất */}
-              <g filter="url(#paperShadow)">
-                <path d="M206 404 C 196 392, 180 390, 170 398 C 168 410, 184 418, 204 412 Z" fill="url(#peachSeedGrad)" stroke="#2e180f" strokeWidth="1" />
-                <path d="M214 404 C 226 394, 242 394, 250 402 C 250 413, 234 418, 216 412 Z" fill="url(#peachSeedGrad)" stroke="#2e180f" strokeWidth="1" />
-                <path d="M178 401 C 186 398, 194 400, 200 405" stroke="#2a150d" strokeWidth="1.6" fill="none" />
-                <path d="M224 402 C 232 399, 240 400, 245 405" stroke="#2a150d" strokeWidth="1.6" fill="none" />
-              </g>
-            </g>
-          )}
-
-          {/* ====================================================================
-              GIAI ĐOẠN 3-5: CÂY ĐÀO NON -> NỞ HOA -> TRĨU QUẢ (cùng một dáng cây lớn dần)
-              ==================================================================== */}
-          {(currentStage === 'sapling' || currentStage === 'blooming' || currentStage === 'mature') && (
-            <g className="tree-stage" key={currentStage}>
-              {renderTree(currentStage)}
-              {renderGround(currentStage === 'sapling' ? 110 : 150)}
-              {currentStage !== 'sapling' && renderFallingPetals(currentStage === 'mature' ? 11 : 5, currentStage === 'mature' ? 4 : 7)}
-            </g>
-          )}
+          {/* Thứ tự lớp: cây -> mầm -> gò đất -> vỏ hạt nứt -> hạt nguyên vẹn -> cánh hoa rơi.
+              Tất cả luôn có mặt, ẩn/hiện và lớn/nhỏ theo --g nên chuyển mốc là hoạt ảnh liền mạch */}
+          {renderTree()}
+          {renderSprout()}
+          {renderGround()}
+          {renderSeedShell()}
+          {renderSeed()}
+          {renderFallingPetals()}
         </svg>
 
-        {/* CÁC NÚT BẤM QUẢ ĐÀO MICROSERVICES (CHỈ HIỆN Ở MỐC MATURE - HIỆN TẠI) */}
-        {currentStage === 'mature' &&
-          projects.map((proj) => {
+        {/* CÁC NÚT BẤM QUẢ ĐÀO MICROSERVICES: chín dần ở cuối giai đoạn trĩu quả, chỉ bấm được ở mốc hiện tại */}
+        <div ref={fruitLayerRef} className={`fruit-layer${isMature ? ' is-ready' : ''}`} aria-hidden={!isMature}>
+          {projects.map((proj, i) => {
             const pos = fruitPositions[proj.id] || proj.fruitPosition || { x: 50, y: 50 };
             return (
-              <InteractiveFruitButton
+              <div
                 key={proj.id}
-                project={proj}
-                position={pos}
-                onSelect={onSelectProject}
-              />
+                className="fruit-grow"
+                style={{ ...growStyle({ a: 3.45 + i * 0.12, d: 0.35 }), transformOrigin: `${pos.x}% ${pos.y}%` }}
+              >
+                <InteractiveFruitButton project={proj} position={pos} onSelect={onSelectProject} />
+              </div>
             );
           })}
+        </div>
       </div>
     </div>
   );
