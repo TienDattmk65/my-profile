@@ -1159,27 +1159,118 @@ body {
   filter: blur(1.5px);
 }
 
-/* Cây đào đổi giai đoạn: lớn lên từ gốc thay vì đổi hình đột ngột */
-.tree-stage {
-  transform-box: view-box;
-  transform-origin: 50% 92%;
-  animation: tree-stage-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+/* ==============================================================================
+   CÂY ĐÀO LỚN LÊN LIỀN MẠCH THEO --g (0 hạt -> 1 mầm -> 2 cây non -> 3 nở hoa -> 4 trĩu quả)
+   --g do JS chạy mượt giữa các mốc; mỗi bộ phận tự tính tiến độ mọc --p từ lịch riêng
+   (--a, --d: bắt đầu & độ dài lúc mọc; --oa, --od: bắt đầu & độ dài lúc tàn/rụng)
+   ============================================================================== */
+.eco-tree-canvas {
+  --g: 0;
 }
 
-@keyframes tree-stage-grow {
-  from {
-    opacity: 0;
-    transform: scale(0.88) translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+.grow,
+.fruit-grow {
+  --p: calc(
+    clamp(0, calc((var(--g) - var(--a)) / var(--d)), 1) *
+      (1 - clamp(0, calc((var(--g) - var(--oa)) / var(--od)), 1))
+  );
+}
+
+.grow {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  transform: scale(var(--p));
+  opacity: clamp(0, calc(var(--p) * 2.5), 1);
+}
+
+/* Chỉ hiện/mờ dần, không đổi kích thước */
+.grow.grow--fade {
+  transform: none;
+  opacity: var(--p);
+}
+
+/* Thân vươn cao từ gốc: dài ra nhanh hơn to ra */
+.grow.grow--stem {
+  transform: scale(calc(0.35 + 0.65 * var(--p)), var(--p));
+}
+
+/* Hoa bung cánh: vừa lớn vừa xoay nhẹ */
+.grow.grow--bloom {
+  transform: rotate(calc((1 - var(--p)) * -110deg)) scale(var(--p));
+}
+
+/* Hai nửa vỏ hạt tách ra hai bên khi mầm nhú */
+.grow.grow--split-l,
+.grow.grow--split-r {
+  opacity: var(--p);
+}
+
+.grow.grow--split-l {
+  transform: translate(calc((1 - var(--p)) * 22px), calc((1 - var(--p)) * -6px)) rotate(calc((1 - var(--p)) * 30deg));
+}
+
+.grow.grow--split-r {
+  transform: translate(calc((1 - var(--p)) * -22px), calc((1 - var(--p)) * -6px)) rotate(calc((1 - var(--p)) * -30deg));
+}
+
+/* Hạt đào thu nhỏ và rơi xuống gò đất trong nửa đầu chặng hạt -> mầm */
+.seed-travel {
+  --s: clamp(0, calc(var(--g) / 0.5), 1);
+  transform-box: view-box;
+  transform-origin: 210px 255px;
+  transform: translate(0, calc(var(--s) * 148px)) scale(calc(1 - 0.84 * var(--s)));
+}
+
+/* Cả cây phóng to dần từ gốc: 0.36 (vừa hoá gỗ) -> 0.6 -> 0.86 -> 1 */
+.tree-growth {
+  transform-box: view-box;
+  transform-origin: 210px 410px;
+  transform: scale(
+    calc(
+      0.36 + 0.24 * clamp(0, calc(var(--g) - 1), 1) + 0.26 * clamp(0, calc(var(--g) - 2), 1) + 0.14 *
+        clamp(0, calc(var(--g) - 3), 1)
+    )
+  );
+}
+
+/* Gò đất rộng dần theo tán cây */
+.ground-spread {
+  transform-box: view-box;
+  transform-origin: 210px 410px;
+  transform: scale(calc(0.63 + 0.1 * clamp(0, calc(var(--g) - 1), 1) + 0.27 * clamp(0, calc(var(--g) - 2), 1)), 1);
+}
+
+.aura-stop {
+  transition: stop-color 1.2s ease;
+}
+
+/* Lớp quả đào HTML phủ trên SVG: quả chín dần (phồng lên từ đầu cành) */
+.fruit-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fruit-grow {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  transform: scale(var(--p));
+  opacity: clamp(0, calc(var(--p) * 2), 1);
+}
+
+.fruit-layer.is-ready .fruit-grow > * {
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aura-stop {
+    transition: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .milestone-page-inner,
-  .tree-stage {
+  .milestone-page-inner {
     transition: none;
     animation: none;
   }
@@ -1322,14 +1413,16 @@ body {
   50% { transform: rotate(4deg); }
 }
 
-/* Cây trĩu quả: thân lắc rất nhẹ để quả đào luôn khớp đầu cành */
-.tree-sway--gentle {
-  animation-name: tree-sway-gentle;
+/* Cây đang lớn: biên độ lắc nhỏ dần theo --g (1.8° khi còn non -> 0.5° khi trĩu quả)
+   để quả đào luôn khớp đầu cành, không bị giật khi đổi giai đoạn */
+.tree-sway--growing {
+  --sway-amp: calc(1.8deg - 1.3deg * clamp(0, calc(var(--g) - 3), 1));
+  animation-name: tree-sway-growing;
 }
 
-@keyframes tree-sway-gentle {
-  0%, 100% { transform: rotate(-0.5deg); }
-  50% { transform: rotate(0.5deg); }
+@keyframes tree-sway-growing {
+  0%, 100% { transform: rotate(calc(var(--sway-amp) * -1)); }
+  50% { transform: rotate(var(--sway-amp)); }
 }
 
 /* Từng chùm lá/hoa rung nhẹ quanh tâm chùm */
