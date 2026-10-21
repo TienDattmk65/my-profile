@@ -32,6 +32,7 @@ export const YamlViewerModal: React.FC<YamlViewerModalProps> = ({ isOpen, onClos
 
   return (
     <div
+      data-no-tilt
       style={{
         position: 'fixed',
         inset: 0,
