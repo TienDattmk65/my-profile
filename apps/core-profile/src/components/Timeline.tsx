@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Calendar, Compass, Sparkles } from 'lucide-react';
 import { TimelineItem, ShowcaseProject } from '../types/profile';
-import { EcoTreeVisualizer } from './EcoTreeVisualizer';
+import { EcoTreeScene } from './EcoTreeScene';
 import { parseStartYear } from '../services/yearUtils';
 import { useAutoRevealBar } from '../hooks/useAutoRevealBar';
 import { animateScrollTo, pageScrollTop, useMilestonePageSnap } from '../hooks/useMilestonePageSnap';
@@ -209,31 +209,10 @@ export const Timeline: React.FC<TimelineProps> = ({
                   data-snap-page
                   data-ascent-label={`${item.year} • ${item.badge}`}
                   data-ascent-year={parseStartYear(item.year)}
-                  className={`milestone-page${isSelected ? ' is-active' : ''}`}
+                  className={`milestone-page${isSelected ? ' is-active' : idx > activeIdx ? ' is-above' : ' is-below'}`}
                   onClick={() => scrollToMilestone(idx)}
                 >
                   <div className="milestone-page-inner">
-                    {/* Dot Icon phát sáng trên trục chung */}
-                    <div
-                      className="ascent-milestone-dot"
-                      style={{
-                        position: 'absolute',
-                        top: '0.2rem',
-                        width: isSelected ? '18px' : '14px',
-                        height: isSelected ? '18px' : '14px',
-                        borderRadius: '50%',
-                        background: isSelected ? 'var(--neon-emerald)' : 'var(--bg-primary)',
-                        border: isSelected
-                          ? '3px solid #fff'
-                          : '3px solid var(--neon-emerald)',
-                        boxShadow: isSelected
-                          ? '0 0 16px var(--neon-emerald), 0 0 25px rgba(0, 245, 155, 0.6)'
-                          : '0 0 8px rgba(0, 245, 155, 0.4)',
-                        zIndex: 2,
-                        transition: 'all var(--transition-fast)',
-                      }}
-                    />
-
                     {/* Card Content */}
                     <div
                       className="glass-card"
@@ -392,7 +371,7 @@ export const Timeline: React.FC<TimelineProps> = ({
 
           {/* CỘT 2: CÂY SINH THÁI MỆNH MỘC STICKY (ECO TREE VISUALIZER) */}
           <div className="tree-sticky-column">
-            <EcoTreeVisualizer
+            <EcoTreeScene
               currentStage={currentStage}
               projects={showcase}
               onSelectProject={onSelectProject}

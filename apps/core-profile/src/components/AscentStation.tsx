@@ -11,6 +11,8 @@ interface AscentStationProps {
   hideHead?: boolean;
   /** Ẩn bảng đếm năm/tuổi (AltitudeHUD) khi đang xem trạm này */
   hideHud?: boolean;
+  /** Nội dung trạm nghiêng/lùi theo chiều sâu 3D khi cuộn qua (tắt cho trạm có phần tử sticky/fixed) */
+  depth3d?: boolean;
   children?: React.ReactNode;
 }
 
@@ -22,6 +24,7 @@ export const AscentStation: React.FC<AscentStationProps> = ({
   isFullPage = false,
   hideHead = false,
   hideHud = false,
+  depth3d = true,
   children,
 }) => {
   return (
@@ -35,7 +38,6 @@ export const AscentStation: React.FC<AscentStationProps> = ({
       {!hideHead && (
         <div className="container">
           <div className="ascent-station-head">
-            <span className="ascent-node" aria-hidden="true" />
             <span className="ascent-station-pill">
               <span>{station.icon}</span>
               <span>{station.label}</span>
@@ -44,7 +46,13 @@ export const AscentStation: React.FC<AscentStationProps> = ({
           </div>
         </div>
       )}
-      {children}
+      {depth3d ? (
+        <div className="station-depth" data-depth3d>
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </div>
   );
 };
