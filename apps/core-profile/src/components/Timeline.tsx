@@ -213,27 +213,6 @@ export const Timeline: React.FC<TimelineProps> = ({
                   onClick={() => scrollToMilestone(idx)}
                 >
                   <div className="milestone-page-inner">
-                    {/* Dot Icon phát sáng trên trục chung */}
-                    <div
-                      className="ascent-milestone-dot"
-                      style={{
-                        position: 'absolute',
-                        top: '0.2rem',
-                        width: isSelected ? '18px' : '14px',
-                        height: isSelected ? '18px' : '14px',
-                        borderRadius: '50%',
-                        background: isSelected ? 'var(--neon-emerald)' : 'var(--bg-primary)',
-                        border: isSelected
-                          ? '3px solid #fff'
-                          : '3px solid var(--neon-emerald)',
-                        boxShadow: isSelected
-                          ? '0 0 16px var(--neon-emerald), 0 0 25px rgba(0, 245, 155, 0.6)'
-                          : '0 0 8px rgba(0, 245, 155, 0.4)',
-                        zIndex: 2,
-                        transition: 'all var(--transition-fast)',
-                      }}
-                    />
-
                     {/* Card Content */}
                     <div
                       className="glass-card"

@@ -38,7 +38,6 @@ export const AscentStation: React.FC<AscentStationProps> = ({
       {!hideHead && (
         <div className="container">
           <div className="ascent-station-head">
-            <span className="ascent-node" aria-hidden="true" />
             <span className="ascent-station-pill">
               <span>{station.icon}</span>
               <span>{station.label}</span>

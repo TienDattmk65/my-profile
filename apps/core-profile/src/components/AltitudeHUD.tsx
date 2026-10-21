@@ -141,7 +141,7 @@ export const AltitudeHUD: React.FC<AltitudeHUDProps> = ({ startYear, currentYear
             <span>{displayYear}</span>
             <span className="altitude-hud-sub">{age} tuổi</span>
           </div>
-          {currentLabel && <div className="altitude-hud-label">{currentLabel}</div>}
+          <div className="altitude-hud-label" title={currentLabel || undefined}>{currentLabel}</div>
           <div className="altitude-hud-actions">
             <button type="button" onClick={scrollToSummit} title={`Lên đỉnh (${currentYear})`}>
               <ArrowUp size={13} />
