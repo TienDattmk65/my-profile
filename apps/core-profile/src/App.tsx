@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useLayoutEffect, useState } from 'react';
 import { loadProfileConfig } from './services/configService';
 import { AscentStationInfo, AscentStationKey, ProfileConfig } from './types/profile';
 import { Hero } from './components/Hero';
@@ -13,7 +13,13 @@ import { AltitudeHUD } from './components/AltitudeHUD';
 import { TypewriterGreeting } from './components/TypewriterGreeting';
 import { SoundToggle } from './components/SoundToggle';
 import { parseStartYear } from './services/yearUtils';
+import { TreeErrorBoundary, supportsWebGL } from './components/EcoTreeScene';
+import { useDepth3D } from './hooks/useDepth3D';
+import { useCardTilt } from './hooks/useCardTilt';
 import { Loader2 } from 'lucide-react';
+
+// Nền 3D (Three.js) tách chunk riêng, chỉ tải khi có WebGL
+const Background3D = lazy(() => import('./components/Background3D'));
 
 // Lời chào dự phòng khi profile.config.yml thiếu mục ascent.greetings
 const DEFAULT_GREETINGS = ["Hello,\nI'm Dao Manh Tien Dat", 'Xin chào,\nTôi là Đào Mạnh Tiến Đạt'];
@@ -34,6 +40,11 @@ export const App: React.FC = () => {
   const [rawYaml, setRawYaml] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [isYamlModalOpen, setIsYamlModalOpen] = useState<boolean>(false);
+  const [hasWebGL] = useState(supportsWebGL);
+
+  // Chiều sâu 3D khi cuộn qua các trạm + thẻ kính nghiêng theo chuột
+  useDepth3D(!loading);
+  useCardTilt();
 
   useEffect(() => {
     let isMounted = true;
@@ -121,6 +132,13 @@ export const App: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {hasWebGL && (
+        <TreeErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <Background3D />
+          </Suspense>
+        </TreeErrorBoundary>
+      )}
       {/* 🍑 TRỤC TIMELINE VƯƠN LÊN TOÀN TRANG: ĐỈNH (HIỆN TẠI) Ở TRÊN -> MẶT ĐẤT (2002) Ở DƯỚI */}
       <main className="ascent-main" style={{ flex: 1 }}>
         <AscentStation station={station('summit')} year={currentYear} isSummit>
@@ -155,7 +173,7 @@ export const App: React.FC = () => {
         )}
 
         {profileData.timeline && profileData.timeline.length > 0 && (
-          <AscentStation station={station('journey')} year={currentYear}>
+          <AscentStation station={station('journey')} year={currentYear} depth3d={false}>
             <Timeline
               timeline={profileData.timeline}
               showcase={profileData.showcase}
@@ -164,7 +182,7 @@ export const App: React.FC = () => {
         )}
 
         {/* Trang khởi đầu (Mặt Đất): lời chào gõ kiểu terminal ở chính giữa */}
-        <AscentStation station={station('ground')} year={startYear} isFullPage hideHead hideHud>
+        <AscentStation station={station('ground')} year={startYear} isFullPage hideHead hideHud depth3d={false}>
           <div className="container ground-hero">
             <TypewriterGreeting texts={profileData.ascent?.greetings ?? DEFAULT_GREETINGS} />
           </div>
